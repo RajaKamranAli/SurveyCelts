@@ -3,7 +3,7 @@ import Likert        from "../components/Likert.jsx";
 import FieldRow      from "../components/FieldRow.jsx";
 import SectionHeader from "../components/SectionHeader.jsx";
 import {
-  RESPONDENT_CATEGORY, INSTITUTION_TYPE, AREAS, PROVINCES,
+  RESPONDENT_CATEGORY, INSTITUTION_TYPE,
 } from "../constants.js";
 
 export default function SurveyPage1({ form, onSet, onNext, onBack }) {
@@ -46,12 +46,6 @@ export default function SurveyPage1({ form, onSet, onNext, onBack }) {
             </FieldRow>
             <FieldRow label="Q2 — Institution Type">
               <RadioGroup options={INSTITUTION_TYPE} value={form.institutionType} onChange={v => onSet("institutionType", v)} />
-            </FieldRow>
-            <FieldRow label="Q3 — Area">
-              <RadioGroup options={AREAS} value={form.area} onChange={v => onSet("area", v)} />
-            </FieldRow>
-            <FieldRow label="Q4 — Province / Region">
-              <RadioGroup options={PROVINCES} value={form.province} onChange={v => onSet("province", v)} />
             </FieldRow>
           </div>
 

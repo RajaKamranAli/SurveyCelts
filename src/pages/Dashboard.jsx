@@ -175,11 +175,11 @@ const injectStyles = () => {
 
     /* ── Stats ── */
     .db-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
-    .db-stat {
-      background:var(--white);
-      border:1px solid var(--cream-dd); border-radius:16px; padding:22px 20px;
-      position:relative; overflow:hidden;
-      box-shadow: var(--shadow-s);
+   .db-stat {
+  background:var(--white);
+  border:1.5px solid #d4cfc4; border-radius:16px; padding:22px 20px;
+  position:relative; overflow:hidden;
+  box-shadow: 0 4px 18px rgba(26,26,46,0.13);
       transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
       animation:fadeUp 0.7s ease both;
     }
@@ -205,10 +205,10 @@ const injectStyles = () => {
       padding:3px 10px; border-radius:100px;
     }
     .db-stat-num {
-      font-family:'Playfair Display',serif;
-      font-size:50px; font-weight:700; line-height:1; color:var(--ink); margin-bottom:4px;
-    }
-    .db-stat-lbl { font-size:11px; color:var(--ink-xl); font-weight:500; letter-spacing:0.04em; }
+  font-family:'Playfair Display',serif;
+  font-size:50px; font-weight:700; line-height:1; color:#0f0f1a; margin-bottom:4px;
+}
+.db-stat-lbl { font-size:11px; color:#3a3a52; font-weight:600; letter-spacing:0.04em; }
     .db-stat-glow {
       position:absolute; bottom:-30px; right:-30px;
       width:100px; height:100px; border-radius:50%;
@@ -274,10 +274,10 @@ const injectStyles = () => {
       animation:fadeUp 0.8s ease 0.43s both;
       box-shadow: var(--shadow-s);
     }
-    .db-thead {
-      display:grid; grid-template-columns:52px 1.2fr 1fr 1fr 1fr 96px;
-      padding:14px 24px;
-      background:var(--parchment);
+   .db-thead {
+  display:grid; grid-template-columns:52px 1.2fr 1fr 1fr 1fr 96px;
+  padding:14px 24px;
+  background:#e8e2d6;
       border-bottom:1px solid var(--cream-dd);
     }
     .db-thead span {
@@ -306,7 +306,7 @@ const injectStyles = () => {
       display:flex; align-items:center; justify-content:center;
     }
     .db-row-cat { font-size:13px; font-weight:600; color:var(--sage); }
-    .db-row-cell { font-size:13px; color:var(--ink-m); font-weight:400; }
+.db-row-cell { font-size:13px; color:#1a1a2e; font-weight:500; }
     .db-badge-done {
       display:inline-flex; align-items:center; gap:5px;
       background:var(--sage-xl);
