@@ -607,7 +607,7 @@ export default function Dashboard({ onStart, onAnalytics }) {
 
         {/* Hero */}
         <div className="db-hero">
-          <div className="db-kicker">Official Research Portal &nbsp;·&nbsp; 2024–25</div>
+          <div className="db-kicker">Official Research Portal &nbsp;·&nbsp; 2026</div>
           <h1 className="db-h1">
             Language Policy<br/>
             <span className="db-h1-line2">Survey Dashboard</span>
