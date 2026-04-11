@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8013/insertSurveyDataAsync";
+const API_URL = "http://survey.ruqqiasultanaclinic.com/insertSurveyDataAsync";
 
 // Convert a form value to string safely
 const s = (val) => (val !== undefined && val !== null) ? String(val) : "";
