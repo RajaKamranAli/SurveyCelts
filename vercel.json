@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://survey.ruqqiasultanaclinic.com/api/:path*"
+    },
+    {
+      "source": "/proxy/:path*",
+      "destination": "http://survey.ruqqiasultanaclinic.com/:path*"
+    }
+  ]
+}

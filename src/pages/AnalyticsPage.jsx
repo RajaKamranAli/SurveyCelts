@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 
-const API_GET = "http://survey.ruqqiasultanaclinic.com/api/UserTest/getallsurvey";
+// const API_GET = "http://survey.ruqqiasultanaclinic.com/api/UserTest/getallsurvey";
+const API_GET = "/api/UserTest/getallsurvey";
+
 // http://survey.ruqqiasultanaclinic.com/swagger/index.html
 /* ══════════════════════ COLORS ══════════════════════════════════════ */
 const PALETTE = [
