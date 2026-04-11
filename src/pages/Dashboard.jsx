@@ -175,24 +175,24 @@ const injectStyles = () => {
 
     /* ── Stats ── */
     .db-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
-   .db-stat {
-  background:var(--white);
-  border:1.5px solid #d4cfc4; border-radius:16px; padding:22px 20px;
+  .db-stat {
+  background: linear-gradient(160deg, #ffffff 0%, #f0ebe0 100%);
+  border:1.5px solid #c8c0b0; border-radius:16px; padding:22px 20px;
   position:relative; overflow:hidden;
-  box-shadow: 0 4px 18px rgba(26,26,46,0.13);
-      transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-      animation:fadeUp 0.7s ease both;
-    }
+  box-shadow: 0 2px 0px #b8b0a0, 0 6px 24px rgba(26,26,46,0.18);
+  transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  animation:fadeUp 0.7s ease both;
+}
     .db-stat::after {
       content:''; position:absolute; inset:0;
       background:linear-gradient(135deg,rgba(255,255,255,0.8),transparent);
       border-radius:inherit; pointer-events:none;
     }
     .db-stat:hover {
-      transform:translateY(-4px);
-      border-color:var(--cream-dd);
-      box-shadow: var(--shadow-m);
-    }
+  transform:translateY(-6px);
+  border-color:#a8a090;
+  box-shadow: 0 3px 0px #a8a090, 0 12px 36px rgba(26,26,46,0.22);
+}
     .db-stat-topbar { position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
     .db-stat-icon-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
     .db-stat-icon {
@@ -204,11 +204,11 @@ const injectStyles = () => {
       font-size:10px; font-weight:600; letter-spacing:0.07em;
       padding:3px 10px; border-radius:100px;
     }
-    .db-stat-num {
+   .db-stat-num {
   font-family:'Playfair Display',serif;
-  font-size:50px; font-weight:700; line-height:1; color:#0f0f1a; margin-bottom:4px;
+  font-size:50px; font-weight:700; line-height:1; color:#0d0d1f; margin-bottom:4px;
 }
-.db-stat-lbl { font-size:11px; color:#3a3a52; font-weight:600; letter-spacing:0.04em; }
+.db-stat-lbl { font-size:11px; color:#2a2a3a; font-weight:700; letter-spacing:0.06em; }
     .db-stat-glow {
       position:absolute; bottom:-30px; right:-30px;
       width:100px; height:100px; border-radius:50%;
