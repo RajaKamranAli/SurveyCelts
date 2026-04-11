@@ -1,12 +1,13 @@
 // Section A
+
 export const RESPONDENT_CATEGORY = [
   { value: "teacher",       label: "Teacher" },
   { value: "policymaker",   label: "Policymaker" },
   { value: "administrator", label: "School Administrator" },
   { value: "parent",        label: "Parent" },
   { value: "researcher",    label: "Researcher" },
+  { value: "student",       label: "Student" },   // ← ADD THIS LINE
 ];
-
 export const INSTITUTION_TYPE = [
   { value: "public",        label: "Public" },
   { value: "private",       label: "Private" },
