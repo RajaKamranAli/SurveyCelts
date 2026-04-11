@@ -319,6 +319,27 @@ function SectionA({ data }) {
           })}
         </div>
       </div>
+      {/* Students by Area */}
+      <div className="an-chart-block" style={{marginBottom:28}}>
+        <div className="an-chart-title">How many Students are in each Area?</div>
+        <BarChart data={
+          ["Urban","Semi-Urban","Rural"].map(area => ({
+            label: area,
+            value: data.filter(r => r.respondentCategory === "student" && r.area === area).length
+          }))
+        } />
+      </div>
+
+      {/* Teachers by Institution Type */}
+      <div className="an-chart-block" style={{marginBottom:28}}>
+        <div className="an-chart-title">How many Teachers are in each Institution Type?</div>
+        <BarChart data={
+          ["Public","Private","Semi-Government","Madrassa","NGO"].map(inst => ({
+            label: inst,
+            value: data.filter(r => r.respondentCategory === "teacher" && r.institutionType === inst).length
+          }))
+        } />
+      </div>
       {/* Category by Province */}
       <div className="an-chart-block">
         <div className="an-chart-title">Respondent Category × Province (Cross-tab)</div>
