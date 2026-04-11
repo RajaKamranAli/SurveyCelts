@@ -276,31 +276,126 @@ function LikertBar({ label, data, total }) {
   );
 }
 
-
-/* REPLACE WITH: */
 function LikertGroup({ questions, data }) {
   const total = data.length || 1;
-  const LEGEND = [
-    ["#A32D2D","Strongly disagree"],
-    ["#F09595","Disagree"],
-    ["#B4B2A9","Neutral"],
-    ["#5DCAA5","Agree"],
-    ["#0F6E56","Strongly agree"],
-  ];
+  const COLORS = ["#791F1F","#F09595","#888780","#5DCAA5","#085041"];
+  const LEGEND = [["#791F1F","Strongly disagree"],["#F09595","Disagree"],["#888780","Neutral"],["#5DCAA5","Agree"],["#085041","Strongly agree"]];
+
+  const pctData = questions.map(([,key]) =>
+    ["1","2","3","4","5"].map(l => Math.round((data.filter(r=>String(r[key])===l).length/total)*100))
+  );
+  const means = questions.map(([,key]) => {
+    const vals = data.map(r=>Number(r[key])).filter(v=>!isNaN(v)&&v>0);
+    return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : 0;
+  });
+  const shortLabels = questions.map(([label]) => label.replace(/^Q\d+ — /,"").slice(0,18)+"…");
+
+  const chartId = "lk_" + Math.random().toString(36).slice(2,7);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const load = () => {
+      if (!window.Chart) return setTimeout(load, 200);
+
+      const stackedCtx = document.getElementById(chartId+"_s");
+      const bubbleCtx  = document.getElementById(chartId+"_b");
+      const radarCtx   = document.getElementById(chartId+"_r");
+      if (!stackedCtx||!bubbleCtx||!radarCtx) return;
+
+      [chartId+"_s",chartId+"_b",chartId+"_r"].forEach(id => {
+        const existing = window.Chart.getChart(id);
+        if (existing) existing.destroy();
+      });
+
+      new window.Chart(stackedCtx, {
+        type:"bar",
+        data:{ labels:shortLabels, datasets:LEGEND.map(([c,l],si)=>({ label:l, data:pctData.map(p=>p[si]), backgroundColor:c })) },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+          scales:{ x:{stacked:true,ticks:{font:{size:10}},grid:{display:false}}, y:{stacked:true,max:100,ticks:{font:{size:10},callback:v=>v+"%"},grid:{color:"rgba(0,0,0,0.05)"}} } }
+      });
+
+      const rawCounts = questions.map(([,key]) => ["1","2","3","4","5"].map(l=>data.filter(r=>String(r[key])===l).length));
+      new window.Chart(bubbleCtx, {
+        type:"bubble",
+        data:{ datasets:[0,1,2,3,4].map(si=>({ label:LEGEND[si][1], backgroundColor:COLORS[si]+"bb", borderColor:COLORS[si], borderWidth:1,
+          data:rawCounts.map((r,qi)=>({x:si+1,y:qi+1,r:Math.max(r[si]*2.5,r[si]>0?4:0)})) })) },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+          scales:{ x:{min:0.3,max:5.7,ticks:{callback:v=>["","SD","D","N","A","SA"][v]||"",font:{size:10}},grid:{color:"rgba(0,0,0,0.05)"}},
+            y:{min:0.3,max:questions.length+0.7,ticks:{callback:v=>shortLabels[v-1]||"",font:{size:10}},grid:{color:"rgba(0,0,0,0.05)"}} } }
+      });
+
+      new window.Chart(radarCtx, {
+        type:"radar",
+        data:{ labels:shortLabels, datasets:[{ data:means, backgroundColor:"rgba(13,110,86,0.15)", borderColor:"#0F6E56", borderWidth:2, pointBackgroundColor:"#0F6E56", pointRadius:4 }] },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+          scales:{ r:{min:1,max:5,ticks:{stepSize:1,font:{size:10},backdropColor:"transparent"},grid:{color:"rgba(0,0,0,0.08)"},pointLabels:{font:{size:9}}} } }
+      });
+    };
+    if (!window.Chart) {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js";
+      s.onload = load; document.head.appendChild(s);
+    } else load();
+  }, [data]);
+
   return (
     <div>
       <div style={{display:"flex",flexWrap:"wrap",gap:"6px 18px",marginBottom:18,paddingBottom:14,borderBottom:"1px solid #f0ebe0"}}>
-        {LEGEND.map(([c,l]) => (
+        {LEGEND.map(([c,l])=>(
           <div key={l} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#5a5a72"}}>
-            <div style={{width:10,height:10,borderRadius:2,background:c,flexShrink:0}}/>
-            {l}
+            <div style={{width:10,height:10,borderRadius:2,background:c,flexShrink:0}}/>{l}
           </div>
         ))}
       </div>
-      <div style={{display:"flex",flexDirection:"column",gap:4}}>
-        {questions.map(([label, key]) => (
-          <LikertBar key={key} label={label} data={data.map(r => r[key])} total={total} />
+
+      <div style={{display:"flex",flexDirection:"column",gap:4,marginBottom:28}}>
+        {questions.map(([label,key],qi) => (
+          <div key={key} style={{marginBottom:12}}>
+            <div style={{fontSize:12,color:"#2d2d44",marginBottom:6,fontWeight:600,lineHeight:1.4}}>{label}</div>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <div style={{fontSize:11,color:"#9898aa",width:34,textAlign:"right",flexShrink:0}}>{pctData[qi][0]+pctData[qi][1]}%</div>
+              <div style={{flex:1,display:"flex",alignItems:"center"}}>
+                <div style={{flex:1,display:"flex",justifyContent:"flex-end",gap:2}}>
+                  {[0,1,2].map(i=>(
+                    <div key={i} style={{height:32,width:`${i===2?pctData[qi][i]/4:pctData[qi][i]/2}%`,background:COLORS[i],borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",minWidth:pctData[qi][i]>0?5:0,overflow:"hidden"}}>
+                      {pctData[qi][i]>12&&i!==2&&<span style={{fontSize:10,color:"#fdd",fontWeight:600}}>{pctData[qi][i]}%</span>}
+                    </div>
+                  ))}
+                </div>
+                <div style={{width:3,background:"#aaa",height:36,flexShrink:0,borderRadius:2}}/>
+                <div style={{flex:1,display:"flex",justifyContent:"flex-start",gap:2}}>
+                  {[2,3,4].map(i=>(
+                    <div key={i} style={{height:32,width:`${i===2?pctData[qi][i]/4:pctData[qi][i]/2}%`,background:COLORS[i],borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",minWidth:pctData[qi][i]>0?5:0,overflow:"hidden"}}>
+                      {pctData[qi][i]>12&&i!==2&&<span style={{fontSize:10,color:"#cef",fontWeight:600}}>{pctData[qi][i]}%</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{fontSize:11,color:"#9898aa",width:34,flexShrink:0}}>{pctData[qi][3]+pctData[qi][4]}%</div>
+            </div>
+          </div>
         ))}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <div style={{background:"#fff",border:"1px solid #e0dbd0",borderRadius:12,padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#1a1a2e",marginBottom:12}}>100% stacked view</div>
+          <div style={{position:"relative",height:`${questions.length*34+60}px`}}>
+            <canvas id={chartId+"_s"} role="img" aria-label="Stacked bar chart">Stacked Likert.</canvas>
+          </div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid #e0dbd0",borderRadius:12,padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#1a1a2e",marginBottom:12}}>Bubble matrix</div>
+          <div style={{position:"relative",height:`${questions.length*34+60}px`}}>
+            <canvas id={chartId+"_b"} role="img" aria-label="Bubble matrix">Bubble Likert.</canvas>
+          </div>
+        </div>
+        <div style={{background:"#fff",border:"1px solid #e0dbd0",borderRadius:12,padding:16,gridColumn:"1/-1"}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#1a1a2e",marginBottom:12}}>Mean scores radar</div>
+          <div style={{position:"relative",height:280}}>
+            <canvas id={chartId+"_r"} role="img" aria-label="Radar chart">Radar.</canvas>
+          </div>
+        </div>
       </div>
     </div>
   );
