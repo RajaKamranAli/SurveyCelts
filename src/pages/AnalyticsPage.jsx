@@ -14,7 +14,7 @@ const PALETTE = [
   "#d35400",  // orange
   "#16a085",  // teal
   "#e91e63",  // pink
-  "#27ae60",  // mid green
+  "#288750",  // mid green
   "#2980b9",  // sky blue
   "#f39c12",  // yellow
   "#7f8c8d",  // grey
@@ -278,8 +278,9 @@ function LikertBar({ label, data, total }) {
 
 function LikertGroup({ questions, data }) {
   const total = data.length || 1;
-  const COLORS = ["#791F1F","#F09595","#888780","#5DCAA5","#085041"];
-  const LEGEND = [["#791F1F","Strongly disagree"],["#F09595","Disagree"],["#888780","Neutral"],["#5DCAA5","Agree"],["#085041","Strongly agree"]];
+const COLORS = ["#c0392b","#e8a0a0","#b0aaa0","#52c4a0","#1a6b50"];
+const LEGEND = [["#c0392b","Strongly disagree"],["#e8a0a0","Disagree"],["#b0aaa0","Neutral"],["#52c4a0","Agree"],["#1a6b50","Strongly agree"]];
+
 
   const pctData = questions.map(([,key]) =>
     ["1","2","3","4","5"].map(l => Math.round((data.filter(r=>String(r[key])===l).length/total)*100))
@@ -355,21 +356,26 @@ function LikertGroup({ questions, data }) {
             <div style={{display:"flex",alignItems:"center",gap:6}}>
               <div style={{fontSize:11,color:"#9898aa",width:34,textAlign:"right",flexShrink:0}}>{pctData[qi][0]+pctData[qi][1]}%</div>
               <div style={{flex:1,display:"flex",alignItems:"center"}}>
-                <div style={{flex:1,display:"flex",justifyContent:"flex-end",gap:2}}>
-                  {[0,1,2].map(i=>(
-                    <div key={i} style={{height:32,width:`${i===2?pctData[qi][i]/4:pctData[qi][i]/2}%`,background:COLORS[i],borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",minWidth:pctData[qi][i]>0?5:0,overflow:"hidden"}}>
-                      {pctData[qi][i]>12&&i!==2&&<span style={{fontSize:10,color:"#fdd",fontWeight:600}}>{pctData[qi][i]}%</span>}
-                    </div>
-                  ))}
-                </div>
-                <div style={{width:3,background:"#aaa",height:36,flexShrink:0,borderRadius:2}}/>
-                <div style={{flex:1,display:"flex",justifyContent:"flex-start",gap:2}}>
-                  {[2,3,4].map(i=>(
-                    <div key={i} style={{height:32,width:`${i===2?pctData[qi][i]/4:pctData[qi][i]/2}%`,background:COLORS[i],borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",minWidth:pctData[qi][i]>0?5:0,overflow:"hidden"}}>
-                      {pctData[qi][i]>12&&i!==2&&<span style={{fontSize:10,color:"#cef",fontWeight:600}}>{pctData[qi][i]}%</span>}
-                    </div>
-                  ))}
-                </div>
+                <div style={{flex:1,position:"relative",height:32}}>
+  {/* Left side: SD + D flush-right from center */}
+  <div style={{position:"absolute",right:"50%",top:0,display:"flex",justifyContent:"flex-end",gap:2,width:"50%"}}>
+    {[0,1].map(i=>(
+      <div key={i} style={{height:32,width:`${pctData[qi][i]}%`,background:COLORS[i],borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",flexShrink:0}}>
+        {pctData[qi][i]>12&&<span style={{fontSize:10,color:"#fdd",fontWeight:600}}>{pctData[qi][i]}%</span>}
+      </div>
+    ))}
+  </div>
+  {/* Center divider */}
+  <div style={{position:"absolute",left:"50%",top:0,width:3,height:36,background:"#aaa",borderRadius:2,transform:"translateX(-50%)"}}/>
+  {/* Right side: A + SA flush-left from center */}
+  <div style={{position:"absolute",left:"50%",top:0,display:"flex",justifyContent:"flex-start",gap:2,width:"50%"}}>
+    {[3,4].map(i=>(
+      <div key={i} style={{height:32,width:`${pctData[qi][i]}%`,background:COLORS[i],borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",flexShrink:0}}>
+        {pctData[qi][i]>12&&<span style={{fontSize:10,color:"#cef",fontWeight:600}}>{pctData[qi][i]}%</span>}
+      </div>
+    ))}
+  </div>
+</div>
               </div>
               <div style={{fontSize:11,color:"#9898aa",width:34,flexShrink:0}}>{pctData[qi][3]+pctData[qi][4]}%</div>
             </div>
