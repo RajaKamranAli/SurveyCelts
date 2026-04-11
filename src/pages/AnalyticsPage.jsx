@@ -243,6 +243,7 @@ const LIKERT_LABELS = ["1","2","3","4","5"];
 const LIKERT_COLORS = ["#c0392b","#e07070","#9898aa","#74c69d","#2d6a4f"];
 const LIKERT_NAMES  = ["Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"];
 
+/* FIND: */
 function LikertBar({ label, data, total }) {
   return (
     <div className="an-likert-item">
@@ -268,6 +269,49 @@ function LikertBar({ label, data, total }) {
   );
 }
 
+/* REPLACE WITH: */
+function LikertBar({ label, data, total }) {
+  const COLORS = ["#A32D2D","#F09595","#B4B2A9","#5DCAA5","#0F6E56"];
+  const counts = LIKERT_LABELS.map(l => data.filter(v => String(v) === l).length);
+  const pcts = counts.map(c => total > 0 ? Math.round((c/total)*100) : 0);
+  return (
+    <div style={{marginBottom:20}}>
+      <div style={{fontSize:12,color:"#5a5a72",marginBottom:7,lineHeight:1.4,fontWeight:500}}>{label}</div>
+      <div style={{display:"flex",alignItems:"center",gap:6}}>
+        <div style={{fontSize:11,color:"#9898aa",width:34,textAlign:"right",flexShrink:0}}>{pcts[0]+pcts[1]}%</div>
+        <div style={{flex:1,display:"flex",alignItems:"center"}}>
+          <div style={{flex:1,display:"flex",justifyContent:"flex-end",gap:1}}>
+            {[0,1,2].map(i => (
+              <div key={i} style={{
+                height:22, width:`${i===2 ? pcts[i]/4 : pcts[i]/2}%`,
+                background:COLORS[i], borderRadius:2,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                minWidth: pcts[i]>0 ? 3 : 0, overflow:"hidden",
+              }}>
+                {pcts[i]>10 && i!==2 && <span style={{fontSize:10,color:"#fdd",fontWeight:600}}>{pcts[i]}%</span>}
+              </div>
+            ))}
+          </div>
+          <div style={{width:2,background:"#ccc",height:26,flexShrink:0,borderRadius:1}}/>
+          <div style={{flex:1,display:"flex",justifyContent:"flex-start",gap:1}}>
+            {[2,3,4].map(i => (
+              <div key={i} style={{
+                height:22, width:`${i===2 ? pcts[i]/4 : pcts[i]/2}%`,
+                background:COLORS[i], borderRadius:2,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                minWidth: pcts[i]>0 ? 3 : 0, overflow:"hidden",
+              }}>
+                {pcts[i]>10 && i!==2 && <span style={{fontSize:10,color:"#cef",fontWeight:600}}>{pcts[i]}%</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{fontSize:11,color:"#9898aa",width:34,flexShrink:0}}>{pcts[3]+pcts[4]}%</div>
+      </div>
+    </div>
+  );
+}
+/* FIND: */
 function LikertGroup({ questions, data }) {
   const total = data.length || 1;
   return (
@@ -279,6 +323,34 @@ function LikertGroup({ questions, data }) {
   );
 }
 
+/* REPLACE WITH: */
+function LikertGroup({ questions, data }) {
+  const total = data.length || 1;
+  const LEGEND = [
+    ["#A32D2D","Strongly disagree"],
+    ["#F09595","Disagree"],
+    ["#B4B2A9","Neutral"],
+    ["#5DCAA5","Agree"],
+    ["#0F6E56","Strongly agree"],
+  ];
+  return (
+    <div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:"6px 18px",marginBottom:18,paddingBottom:14,borderBottom:"1px solid #f0ebe0"}}>
+        {LEGEND.map(([c,l]) => (
+          <div key={l} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#5a5a72"}}>
+            <div style={{width:10,height:10,borderRadius:2,background:c,flexShrink:0}}/>
+            {l}
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:4}}>
+        {questions.map(([label, key]) => (
+          <LikertBar key={key} label={label} data={data.map(r => r[key])} total={total} />
+        ))}
+      </div>
+    </div>
+  );
+}
 /* ══════════════════════ SECTION A ══════════════════════════════════ */
 function SectionA({ data }) {
   return (
