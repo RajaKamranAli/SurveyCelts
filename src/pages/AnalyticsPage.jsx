@@ -114,18 +114,6 @@ const injectStyles = () => {
       background:#2d6a4f; border-radius:2px;
     }
 
-    /* Likert summary */
-    // .an-likert-list { display:flex; flex-direction:column; gap:10px; }
-    // .an-likert-item { }
-    // .an-likert-q { font-size:12px; color:#5a5a72; margin-bottom:6px; font-weight:500; }
-    // .an-likert-bars { display:flex; flex-direction:column; gap:3px; }
-    // .an-likert-bar-row { display:flex; align-items:center; gap:8px; }
-    // .an-likert-bar-lbl { width:68px; font-size:10px; color:#9898aa; text-align:right; flex-shrink:0; }
-    // .an-likert-bar-track { flex:1; background:#f0ebe0; border-radius:4px; height:14px; overflow:hidden; }
-    // .an-likert-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:6px; transition:width 0.6s ease; }
-    // .an-likert-bar-num { font-size:10px; color:#fff; font-weight:600; }
-    // .an-likert-bar-count { width:20px; font-size:10px; color:#9898aa; }
-
     /* Stat cards row */
     .an-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
     .an-stat-mini {
@@ -244,30 +232,6 @@ const LIKERT_COLORS = ["#c0392b","#e07070","#9898aa","#74c69d","#2d6a4f"];
 const LIKERT_NAMES  = ["Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"];
 
 /* FIND: */
-function LikertBar({ label, data, total }) {
-  return (
-    <div className="an-likert-item">
-      <div className="an-likert-q">{label}</div>
-      <div className="an-likert-bars">
-        {LIKERT_LABELS.map((lbl, i) => {
-          const cnt = data.filter(v => String(v) === lbl).length;
-          const pct = total > 0 ? (cnt/total)*100 : 0;
-          return (
-            <div className="an-likert-bar-row" key={i}>
-              <div className="an-likert-bar-lbl">{LIKERT_NAMES[i]}</div>
-              <div className="an-likert-bar-track">
-                <div className="an-likert-bar-fill" style={{width:`${pct}%`,background:LIKERT_COLORS[i]}}>
-                  {cnt > 0 && <span className="an-likert-bar-num">{cnt}</span>}
-                </div>
-              </div>
-              <div className="an-likert-bar-count">{cnt}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 /* REPLACE WITH: */
 function LikertBar({ label, data, total }) {
@@ -311,18 +275,7 @@ function LikertBar({ label, data, total }) {
     </div>
   );
 }
-/* FIND: */
-function LikertGroup({ questions, data }) {
-  const total = data.length || 1;
-  return (
-    <div className="an-likert-list">
-      {questions.map(([label, key]) => (
-        <LikertBar key={key}     .an-likert-list { display:flex; flex-direction:column; gap:10px; }
-label={label} data={data.map(r => r[key])} total={total} />
-      ))}
-    </div>
-  );
-}
+
 
 /* REPLACE WITH: */
 function LikertGroup({ questions, data }) {
