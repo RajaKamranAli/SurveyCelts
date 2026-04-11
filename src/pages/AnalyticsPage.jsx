@@ -115,16 +115,16 @@ const injectStyles = () => {
     }
 
     /* Likert summary */
-    .an-likert-list { display:flex; flex-direction:column; gap:10px; }
-    .an-likert-item { }
-    .an-likert-q { font-size:12px; color:#5a5a72; margin-bottom:6px; font-weight:500; }
-    .an-likert-bars { display:flex; flex-direction:column; gap:3px; }
-    .an-likert-bar-row { display:flex; align-items:center; gap:8px; }
-    .an-likert-bar-lbl { width:68px; font-size:10px; color:#9898aa; text-align:right; flex-shrink:0; }
-    .an-likert-bar-track { flex:1; background:#f0ebe0; border-radius:4px; height:14px; overflow:hidden; }
-    .an-likert-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:6px; transition:width 0.6s ease; }
-    .an-likert-bar-num { font-size:10px; color:#fff; font-weight:600; }
-    .an-likert-bar-count { width:20px; font-size:10px; color:#9898aa; }
+    // .an-likert-list { display:flex; flex-direction:column; gap:10px; }
+    // .an-likert-item { }
+    // .an-likert-q { font-size:12px; color:#5a5a72; margin-bottom:6px; font-weight:500; }
+    // .an-likert-bars { display:flex; flex-direction:column; gap:3px; }
+    // .an-likert-bar-row { display:flex; align-items:center; gap:8px; }
+    // .an-likert-bar-lbl { width:68px; font-size:10px; color:#9898aa; text-align:right; flex-shrink:0; }
+    // .an-likert-bar-track { flex:1; background:#f0ebe0; border-radius:4px; height:14px; overflow:hidden; }
+    // .an-likert-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:6px; transition:width 0.6s ease; }
+    // .an-likert-bar-num { font-size:10px; color:#fff; font-weight:600; }
+    // .an-likert-bar-count { width:20px; font-size:10px; color:#9898aa; }
 
     /* Stat cards row */
     .an-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
@@ -317,7 +317,8 @@ function LikertGroup({ questions, data }) {
   return (
     <div className="an-likert-list">
       {questions.map(([label, key]) => (
-        <LikertBar key={key} label={label} data={data.map(r => r[key])} total={total} />
+        <LikertBar key={key}     .an-likert-list { display:flex; flex-direction:column; gap:10px; }
+label={label} data={data.map(r => r[key])} total={total} />
       ))}
     </div>
   );
