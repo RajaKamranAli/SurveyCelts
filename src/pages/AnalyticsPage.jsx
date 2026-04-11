@@ -319,25 +319,31 @@ function SectionA({ data }) {
           })}
         </div>
       </div>
-      {/* Students by Area */}
+   {/* Students by Area */}
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">How many Students are in each Area?</div>
+        <div className="an-chart-title">Students — Count by Area</div>
         <BarChart data={
-          ["Urban","Semi-Urban","Rural"].map(area => ({
+          [...new Set(data.map(r => r.area).filter(Boolean))].map(area => ({
             label: area,
-            value: data.filter(r => r.respondentCategory === "student" && r.area === area).length
-          }))
+            value: data.filter(r =>
+              String(r.respondentCategory).toLowerCase() === "student" &&
+              r.area === area
+            ).length
+          })).filter(d => d.value > 0)
         } />
       </div>
 
       {/* Teachers by Institution Type */}
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">How many Teachers are in each Institution Type?</div>
+        <div className="an-chart-title">Teachers — Count by Institution Type</div>
         <BarChart data={
-          ["Public","Private","Semi-Government","Madrassa","NGO"].map(inst => ({
+          [...new Set(data.map(r => r.institutionType).filter(Boolean))].map(inst => ({
             label: inst,
-            value: data.filter(r => r.respondentCategory === "teacher" && r.institutionType === inst).length
-          }))
+            value: data.filter(r =>
+              String(r.respondentCategory).toLowerCase() === "teacher" &&
+              r.institutionType === inst
+            ).length
+          })).filter(d => d.value > 0)
         } />
       </div>
       {/* Category by Province */}
