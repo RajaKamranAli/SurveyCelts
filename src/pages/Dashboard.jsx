@@ -12,18 +12,18 @@ const injectStyles = () => {
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
     :root {
-      --cream:     #f7f4ef;
-      --cream-d:   #ede9e1;
-      --cream-dd:  #e0dbd0;
-      --parchment: #f0ebe0;
+       --cream:     #dde4ec;
+      --cream-d:   #cdd6e0;
+      --cream-dd:  #bcc8d4;
+      --parchment: #d4dce6;
       --sage:      #2d6a4f;
       --sage-m:    #40916c;
       --sage-l:    #74c69d;
       --sage-xl:   #d8f3dc;
-      --ink:       #1a1a2e;
-      --ink-m:     #2d2d44;
-      --ink-l:     #5a5a72;
-      --ink-xl:    #9898aa;
+       --ink:       #1a1f2e;
+      --ink-m:     #2d3444;
+      --ink-l:     #4a5468;
+      --ink-xl:    #7a8899;
       --gold:      #b5860d;
       --gold-l:    #e8b030;
       --gold-xl:   #fef3c7;
@@ -37,10 +37,10 @@ const injectStyles = () => {
 
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
-    .db-root {
+     .db-root {
       min-height:100vh;
-      background: var(--cream);
-      font-family:'DM Sans',sans-serif;
+      background: #dde4ec;
+            font-family:'DM Sans',sans-serif;
       color: var(--ink);
       position:relative;
       overflow-x:hidden;
@@ -50,12 +50,12 @@ const injectStyles = () => {
     .db-bg {
       position:fixed; inset:0; z-index:0; pointer-events:none;
     }
-    .db-bg-paper {
+     .db-bg-paper {
       position:absolute; inset:0;
       background:
-        radial-gradient(ellipse 80% 60% at 10% 10%, rgba(116,198,157,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 80% 60% at 10% 10%, rgba(100,149,200,0.12) 0%, transparent 55%),
         radial-gradient(ellipse 60% 80% at 92% 90%, rgba(181,134,13,0.07) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(240,235,224,0.5) 0%, transparent 70%);
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,215,230,0.5) 0%, transparent 70%);
     }
     .db-bg-lines {
       position:absolute; inset:0;
@@ -176,8 +176,8 @@ const injectStyles = () => {
     /* ── Stats ── */
     .db-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
   .db-stat {
-  background: linear-gradient(160deg, #ffffff 0%, #f0ebe0 100%);
-  border:1.5px solid #c8c0b0; border-radius:16px; padding:22px 20px;
+    background: linear-gradient(160deg, #ffffff 0%, #eaf0f6 100%);
+  border:1.5px solid #c0ccd8; border-radius:16px; padding:22px 20px;
   position:relative; overflow:hidden;
   box-shadow: 0 2px 0px #b8b0a0, 0 6px 24px rgba(26,26,46,0.18);
   transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
@@ -268,9 +268,9 @@ const injectStyles = () => {
     }
 
     /* ── Table ── */
-    .db-table {
-      background:var(--white);
-      border:1px solid var(--cream-dd); border-radius:18px; overflow:hidden;
+      .db-table {
+      background:#ffffff;
+      border:1px solid #c0ccd8; border-radius:18px; overflow:hidden;
       animation:fadeUp 0.8s ease 0.43s both;
       box-shadow: var(--shadow-s);
     }
@@ -296,8 +296,8 @@ const injectStyles = () => {
       to   { opacity:1; transform:translateX(0); }
     }
     .db-row:last-child { border-bottom:none; }
-    .db-row:nth-child(even) { background:rgba(247,244,239,0.5); }
-    .db-row:hover { background:var(--sage-xl); border-color:rgba(45,106,79,0.1); transform:translateX(2px); }
+      .db-row:nth-child(even) { background:rgba(200,215,230,0.3); }
+    .db-row:hover { background:rgba(100,149,200,0.12); border-color:rgba(100,149,200,0.2); transform:translateX(2px); }
     .db-row-num {
       font-family:'Playfair Display',serif; font-size:13px; font-weight:700;
       color:var(--ink-xl);
