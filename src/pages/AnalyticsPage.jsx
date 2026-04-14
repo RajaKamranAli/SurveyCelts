@@ -231,9 +231,6 @@ const LIKERT_LABELS = ["1","2","3","4","5"];
 const LIKERT_COLORS = ["#c0392b","#e07070","#9898aa","#74c69d","#2d6a4f"];
 const LIKERT_NAMES  = ["Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"];
 
-/* FIND: */
-
-/* REPLACE WITH: */
 function LikertBar({ label, data, total }) {
   const COLORS = ["#A32D2D","#F09595","#B4B2A9","#5DCAA5","#0F6E56"];
   const counts = LIKERT_LABELS.map(l => data.filter(v => String(v) === l).length);
@@ -406,6 +403,7 @@ const LEGEND = [["#c0392b","Strongly disagree"],["#e8a0a0","Disagree"],["#b0aaa0
     </div>
   );
 }
+
 /* ══════════════════════ SECTION A ══════════════════════════════════ */
 function SectionA({ data }) {
   return (
@@ -494,17 +492,24 @@ function SectionA({ data }) {
 }
 
 /* ══════════════════════ SECTION B ══════════════════════════════════ */
+/* Matches Page 1 Section B: "Language of Instruction and Educational Effectiveness" */
+/* Q1–Q12 as rendered in SurveyPage1                                                */
 function SectionB({ data }) {
   const QUESTIONS = [
     ["Q1 — Students understand concepts better in their mother tongue","motherTongueUnderstanding"],
     ["Q2 — Students face difficulty when instruction is in English at early grades","englishDifficultyEarlyGrades"],
     ["Q3 — Urdu is more accessible to students than English at primary level","urduMoreAccessible"],
     ["Q4 — English medium creates comprehension barriers for rural students","englishBarrierRural"],
-    ["Q5 — Students actively participate when teachers use local languages","participationLocalLanguage"],
-    ["Q6 — Language mismatch affects learning outcomes","languageMismatchImpact"],
+    ["Q5 — English medium creates comprehension barriers for urban students","englishBarrierUrban"],
+    ["Q6 — Teaching in foreign Language affects learning outcomes","teachingForeignLanguageOutcomes"],
+    ["Q7 — Students actively participate when teachers use local languages","participationLocalLanguage"],
+    ["Q8 — Early grade education should be in mother tongue","earlyEducationMotherTongue"],
+    ["Q9 — Conceptual learning improves when taught in mother tongue","conceptLearningMotherTongue"],
+    ["Q10 — English medium promotes rote learning at early stages","englishPromotesRoteLearning"],
+    ["Q11 — Urdu can function as a bridge language in multilingual classrooms","urduBridgeLanguage"],
+    ["Q12 — Mother tongue instruction reduces learning gaps","motherTongueReducesGap"],
   ];
 
-  // Mean scores
   const means = QUESTIONS.map(([label, key]) => {
     const vals = data.map(r => Number(r[key])).filter(v => !isNaN(v) && v > 0);
     const mean = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : "—";
@@ -514,11 +519,11 @@ function SectionB({ data }) {
   return (
     <div>
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section B — Linguistic Reality (Likert 1–5 breakdown)</div>
+        <div className="an-chart-title">Section B — Language of Instruction and Educational Effectiveness (Likert 1–5 breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
       <div className="an-chart-block">
-        <div className="an-chart-title">Mean Scores — Linguistic Reality</div>
+        <div className="an-chart-title">Mean Scores — Language of Instruction and Educational Effectiveness</div>
         <BarChart data={means.map(m => ({ label: m.label.slice(0,32)+"…", value: parseFloat(m.mean)||0 }))} />
         <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:5}}>
           {means.map((m,i) => (
@@ -534,57 +539,23 @@ function SectionB({ data }) {
 }
 
 /* ══════════════════════ SECTION C ══════════════════════════════════ */
+/* Matches Page 2 Section C: "Equity and Access" — Q13–Q16 */
 function SectionC({ data }) {
   const QUESTIONS = [
-    ["Q7 — Early grade education should be in mother tongue","earlyEducationMotherTongue"],
-    ["Q8 — Conceptual learning improves when taught in familiar language","conceptLearningFamiliarLanguage"],
-    ["Q9 — English medium promotes rote learning at early stages","englishPromotesRoteLearning"],
-    ["Q10 — Urdu can function as a bridge language in multilingual classrooms","urduBridgeLanguage"],
-    ["Q11 — Multilingual instruction improves learning outcomes","multilingualImprovesLearning"],
+    ["Q13 — English medium of instruction favors elite/private school students","englishFavorsElite"],
+    ["Q14 — Students from regional language backgrounds are disadvantaged","regionalStudentsDisadvantaged"],
+    ["Q15 — Language policy contributes to educational inequality","languagePolicyInequality"],
+    ["Q16 — More Job Opportunities are available for English medium students","jobOpportunitiesEnglishMedium"],
   ];
   return (
     <div>
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section C — Educational Effectiveness (Likert breakdown)</div>
-        <LikertGroup questions={QUESTIONS} data={data} />
-      </div>
-      {/* Responses by category cross-tab */}
-      <div className="an-chart-block">
-        <div className="an-chart-title">Q7 (Early Mother Tongue Education) — Response by Respondent Category</div>
-        <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
-          {["Teacher","Policymaker","School Administrator","Parent","Researcher"].map(cat => {
-            const filtered = data.filter(r => r.respondentCategory === cat);
-            if (!filtered.length) return null;
-            return (
-              <div key={cat} style={{flex:1,minWidth:140}}>
-                <div style={{fontSize:11,fontWeight:600,color:"#2d6a4f",marginBottom:8}}>{cat} ({filtered.length})</div>
-                <BarChart data={countFixed(filtered,"earlyEducationMotherTongue",LIKERT_LABELS)} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════ SECTION D ══════════════════════════════════ */
-function SectionD({ data }) {
-  const QUESTIONS = [
-    ["Q12 — English medium favors elite/private school students","englishFavorsElite"],
-    ["Q13 — Students from regional language backgrounds are disadvantaged","regionalStudentsDisadvantaged"],
-    ["Q14 — Language policy contributes to educational inequality","languagePolicyInequality"],
-    ["Q15 — Mother tongue instruction reduces learning gaps","motherTongueReducesGap"],
-  ];
-  return (
-    <div>
-      <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section D — Equity & Access (Likert breakdown)</div>
+        <div className="an-chart-title">Section C — Equity and Access (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
       <div className="an-chart-grid-2">
         <div className="an-chart-block">
-          <div className="an-chart-title">Q12 — English Favors Elite (by Area)</div>
+          <div className="an-chart-title">Q13 — English Favors Elite (by Area)</div>
           <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
             {["Urban","Rural"].map(area => {
               const f = data.filter(r=>r.area===area);
@@ -598,7 +569,7 @@ function SectionD({ data }) {
           </div>
         </div>
         <div className="an-chart-block">
-          <div className="an-chart-title">Q14 — Policy Contributes to Inequality (by Category)</div>
+          <div className="an-chart-title">Q15 — Language Policy Contributes to Inequality (by Category)</div>
           <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
             {["Teacher","Policymaker","Parent"].map(cat => {
               const f = data.filter(r=>r.respondentCategory===cat);
@@ -617,23 +588,25 @@ function SectionD({ data }) {
   );
 }
 
-/* ══════════════════════ SECTION E ══════════════════════════════════ */
-function SectionE({ data }) {
+/* ══════════════════════ SECTION D ══════════════════════════════════ */
+/* Matches Page 2 Section D: "Teacher Capacity" — Q17–Q21 */
+function SectionD({ data }) {
   const QUESTIONS = [
-    ["Q16 — Teachers are able to teach effectively in English medium","teachersEffectiveEnglish"],
-    ["Q17 — Teachers naturally switch to local languages for explanation","teachersSwitchLocalLanguage"],
-    ["Q18 — Multilingual classrooms require flexible language policy","multilingualFlexiblePolicy"],
-    ["Q19 — Teacher-student interaction improves in shared language","interactionSharedLanguage"],
+    ["Q17 — Teachers are able to teach effectively in English medium","teachersEffectiveEnglish"],
+    ["Q18 — Teachers naturally switch to local languages for explanation","teachersSwitchLocalLanguage"],
+    ["Q19 — Teacher can teach in Urdu or in local Languages","teacherUrduLocalLanguage"],
+    ["Q20 — Teacher-student interaction improves in shared language","interactionSharedLanguage"],
+    ["Q21 — Teacher use Urdu or local Languages while teaching subjects in English","teacherUrduWhileEnglish"],
   ];
   return (
     <div>
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section E — Teacher Capacity (Likert breakdown)</div>
+        <div className="an-chart-title">Section D — Teacher Capacity (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
       <div className="an-chart-grid-2">
         <div className="an-chart-block">
-          <div className="an-chart-title">Q16 — Teachers Effective in English (by Institution Type)</div>
+          <div className="an-chart-title">Q17 — Teachers Effective in English (by Institution Type)</div>
           <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
             {["Public","Private"].map(inst => {
               const f = data.filter(r=>r.institutionType===inst);
@@ -648,7 +621,7 @@ function SectionE({ data }) {
           </div>
         </div>
         <div className="an-chart-block">
-          <div className="an-chart-title">Q17 — Teachers Switch to Local Language (by Area)</div>
+          <div className="an-chart-title">Q18 — Teachers Switch to Local Language (by Area)</div>
           <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
             {["Urban","Rural"].map(area => {
               const f = data.filter(r=>r.area===area);
@@ -666,25 +639,26 @@ function SectionE({ data }) {
   );
 }
 
-/* ══════════════════════ SECTION F ══════════════════════════════════ */
-function SectionF({ data }) {
+/* ══════════════════════ SECTION E ══════════════════════════════════ */
+/* Matches Page 2 Section E: "Preferred Medium of Instruction — Primary Level (Grades 1–5)" — Q22–Q26 */
+function SectionE({ data }) {
   const QUESTIONS = [
-    ["Q20 — Mother tongue should be medium at primary level","motherTonguePrimary"],
-    ["Q21 — Urdu should be medium at primary level","urduPrimary"],
-    ["Q22 — English should be medium at primary level","englishPrimary"],
-    ["Q23 — Bilingual (Mother tongue + Urdu) model should be used","bilingualMotherUrdu"],
-    ["Q24 — Gradual transition (MT → Urdu → English) is appropriate","gradualTransitionPrimary"],
+    ["Q22 — Mother tongue should be medium of instruction at primary level","motherTonguePrimary"],
+    ["Q23 — Urdu should be medium of instruction at primary level","urduPrimary"],
+    ["Q24 — English should be medium of instruction at primary level","englishPrimary"],
+    ["Q25 — Bilingual (Mother tongue + Urdu) model should be used","bilingualMotherUrdu"],
+    ["Q26 — Gradual transition (Mother tongue → Urdu → English) is appropriate","gradualTransitionPrimary"],
   ];
   return (
     <div>
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section F — Preferred MOI at Primary Level Grades 1–5 (Likert breakdown)</div>
+        <div className="an-chart-title">Section E — Preferred Medium of Instruction — Primary Level (Grades 1–5) (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
-      {/* Compare Q20 vs Q22 side by side */}
+      {/* Compare Q22 vs Q24 side by side */}
       <div className="an-chart-grid-2">
         <div className="an-chart-block">
-          <div className="an-chart-title">Q20 — Mother Tongue at Primary (by Province)</div>
+          <div className="an-chart-title">Q22 — Mother Tongue at Primary (by Province)</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
             {["Punjab","Sindh","KPK","Balochistan"].map(prov => {
               const f = data.filter(r=>r.province===prov);
@@ -699,7 +673,7 @@ function SectionF({ data }) {
           </div>
         </div>
         <div className="an-chart-block">
-          <div className="an-chart-title">Q22 — English at Primary (by Province)</div>
+          <div className="an-chart-title">Q24 — English at Primary (by Province)</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
             {["Punjab","Sindh","KPK","Balochistan"].map(prov => {
               const f = data.filter(r=>r.province===prov);
@@ -718,24 +692,25 @@ function SectionF({ data }) {
   );
 }
 
-/* ══════════════════════ SECTION G ══════════════════════════════════ */
-function SectionG({ data }) {
+/* ══════════════════════ SECTION F ══════════════════════════════════ */
+/* Matches Page 2 Section F: "Preferred Medium of Instruction — Middle Level (Grades 6–8)" — Q27–Q31 */
+function SectionF({ data }) {
   const QUESTIONS = [
-    ["Q25 — Urdu should be medium at middle level","urduMiddle"],
-    ["Q26 — English should become medium at middle level","englishMiddle"],
-    ["Q27 — Bilingual Urdu-English model should be adopted","bilingualUrduEnglish"],
-    ["Q28 — Mother tongue support should continue at middle level","motherTongueSupportMiddle"],
-    ["Q29 — Gradual shift to English should begin at middle level","gradualShiftEnglishMiddle"],
+    ["Q27 — Urdu should be medium of Instruction at middle level","urduMiddle"],
+    ["Q28 — English should become medium at middle level","englishMiddle"],
+    ["Q29 — Bilingual Urdu-English model should be adopted","bilingualUrduEnglish"],
+    ["Q30 — Mother tongue support should continue at middle level","motherTongueSupportMiddle"],
+    ["Q31 — Gradual shift to English should begin at middle level","gradualShiftEnglishMiddle"],
   ];
   return (
     <div>
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section G — Preferred MOI at Middle Level Grades 6–8 (Likert breakdown)</div>
+        <div className="an-chart-title">Section F — Preferred Medium of Instruction — Middle Level (Grades 6–8) (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
       <div className="an-chart-grid-2">
         <div className="an-chart-block">
-          <div className="an-chart-title">Q26 — English at Middle Level (by Area)</div>
+          <div className="an-chart-title">Q28 — English at Middle Level (by Area)</div>
           <div style={{display:"flex",gap:14}}>
             {["Urban","Rural"].map(area => {
               const f = data.filter(r=>r.area===area);
@@ -749,7 +724,7 @@ function SectionG({ data }) {
           </div>
         </div>
         <div className="an-chart-block">
-          <div className="an-chart-title">Q27 — Bilingual Model (Urdu-English) by Category</div>
+          <div className="an-chart-title">Q29 — Bilingual Model (Urdu-English) by Category</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
             {["Teacher","Parent","Policymaker"].map(cat => {
               const f = data.filter(r=>r.respondentCategory===cat);
@@ -768,24 +743,26 @@ function SectionG({ data }) {
   );
 }
 
-/* ══════════════════════ SECTION H ══════════════════════════════════ */
-function SectionH({ data }) {
+/* ══════════════════════ SECTION G ══════════════════════════════════ */
+/* Matches Page 2 Section G: "Preferred Medium of Instruction — Matriculation Level (Grades 9–10)" — Q32–Q37 */
+function SectionG({ data }) {
   const QUESTIONS = [
-    ["Q30 — English should be medium at matric level","englishMatric"],
-    ["Q31 — Urdu should remain medium at matric level","urduMatric"],
-    ["Q32 — Bilingual Urdu-English model is more effective","bilingualMatric"],
-    ["Q33 — Students should be prepared for English medium at higher education","preparedForHigherEducation"],
-    ["Q34 — Technical subjects should be taught in English","technicalSubjectsEnglish"],
+    ["Q32 — English should be medium of Instruction at matric level","englishMatric"],
+    ["Q33 — Mother Tongue should be medium at matric level","motherTongueMatric"],
+    ["Q34 — Urdu should remain medium of Instruction at matric level","urduMatric"],
+    ["Q35 — Bilingual Urdu-English model is more effective","bilingualMatric"],
+    ["Q36 — Students should be prepared for English medium at higher education","preparedForHigherEducation"],
+    ["Q37 — Technical subjects should be taught in English","technicalSubjectsEnglish"],
   ];
   return (
     <div>
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section H — Preferred MOI at Matriculation Level Grades 9–10 (Likert breakdown)</div>
+        <div className="an-chart-title">Section G — Preferred Medium of Instruction — Matriculation Level (Grades 9–10) (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
       <div className="an-chart-grid-2">
         <div className="an-chart-block">
-          <div className="an-chart-title">Q30 — English at Matric (by Institution Type)</div>
+          <div className="an-chart-title">Q32 — English at Matric (by Institution Type)</div>
           <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
             {["Public","Private","Semi-Government","Madrassa"].map(inst => {
               const f = data.filter(r=>r.institutionType===inst);
@@ -800,7 +777,7 @@ function SectionH({ data }) {
           </div>
         </div>
         <div className="an-chart-block">
-          <div className="an-chart-title">Q34 — Technical Subjects in English (by Area)</div>
+          <div className="an-chart-title">Q37 — Technical Subjects in English (by Area)</div>
           <div style={{display:"flex",gap:14}}>
             {["Urban","Rural"].map(area => {
               const f = data.filter(r=>r.area===area);
@@ -818,101 +795,31 @@ function SectionH({ data }) {
   );
 }
 
-/* ══════════════════════ SECTION I ══════════════════════════════════ */
-function SectionI({ data }) {
-  const QUESTIONS = [
-    ["Q35 — Pakistan needs multilingual education policy","needMultilingualPolicy"],
-    ["Q36 — Language policy should reflect linguistic diversity","policyReflectDiversity"],
-    ["Q37 — Uniform national language policy is not suitable","uniformPolicyNotSuitable"],
-    ["Q38 — Regional flexibility should be allowed in language policy","regionalFlexibility"],
-    ["Q39 — Evidence-based linguistic survey should guide policy","evidenceBasedPolicy"],
-  ];
-
-  const total = data.length || 1;
-  const agreeCount = (key) =>
-    data.filter(r => ["4","5"].includes(String(r[key]))).length;
-
-  return (
-    <div>
-      {/* Agreement summary cards */}
-      <div className="an-stat-row" style={{gridTemplateColumns:"repeat(5,1fr)"}}>
-        {QUESTIONS.map(([label, key]) => {
-          const cnt = agreeCount(key);
-          const pct = Math.round((cnt/total)*100);
-          return (
-            <div className="an-stat-mini" key={key}>
-              <div className="an-stat-mini-num" style={{color:"#2d6a4f",fontSize:22}}>{pct}%</div>
-              <div className="an-stat-mini-pct">Agree/Strongly Agree</div>
-              <div className="an-stat-mini-lbl" style={{fontSize:10}}>{label.replace(/^Q\d+ — /,"").slice(0,40)}</div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section I — Policy Direction (Likert breakdown)</div>
-        <LikertGroup questions={QUESTIONS} data={data} />
-      </div>
-      <div className="an-chart-grid-2">
-        <div className="an-chart-block">
-          <div className="an-chart-title">Q35 — Need Multilingual Policy (by Category)</div>
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {["Teacher","Policymaker","Parent","Researcher"].map(cat => {
-              const f = data.filter(r=>r.respondentCategory===cat);
-              if(!f.length) return null;
-              return (
-                <div key={cat} style={{flex:1,minWidth:80}}>
-                  <div style={{fontSize:10,fontWeight:600,color:"#2d6a4f",marginBottom:6}}>{cat}</div>
-                  <BarChart data={countFixed(f,"needMultilingualPolicy",LIKERT_LABELS)} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="an-chart-block">
-          <div className="an-chart-title">Q38 — Regional Flexibility (by Province)</div>
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {["Punjab","Sindh","KPK","Balochistan"].map(prov => {
-              const f = data.filter(r=>r.province===prov);
-              if(!f.length) return null;
-              return (
-                <div key={prov} style={{flex:1,minWidth:80}}>
-                  <div style={{fontSize:10,fontWeight:600,color:"#2d6a4f",marginBottom:6}}>{prov}</div>
-                  <BarChart data={countFixed(f,"regionalFlexibility",LIKERT_LABELS)} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════ SECTION J ══════════════════════════════════ */
-function SectionK({ data }) {
+/* ══════════════════════ SECTION H ══════════════════════════════════ */
+/* Matches Page 2 Section H: "Medium of Instruction and Dropout Ratio" — Q38–Q52 */
+function SectionH({ data }) {
   const LIKERT_QS = [
-    ["Q40 — Students more likely to drop out when they don't understand instruction language","dropoutDueToLanguage"],
-    ["Q41 — English-medium instruction at primary level contributes to early grade dropout","englishPrimaryDropout"],
-    ["Q42 — Students from rural backgrounds drop out more due to language difficulties","ruralDropoutLanguage"],
-    ["Q43 — Mother tongue instruction can reduce dropout ratio in early grades","motherTongueReduceDropout"],
-    ["Q44 — Language mismatch between home and school increases dropout risk","languageMismatchDropoutRisk"],
-    ["Q45 — Students losing interest due to language difficulty leads to absenteeism","languageAbsenteeism"],
-    ["Q46 — Urdu medium reduces dropout compared to English medium in public schools","urduReduceDropout"],
-    ["Q47 — Students with weak English foundation are more likely to leave school","weakEnglishDropout"],
-    ["Q48 — Multilingual instruction improves student retention","multilingualRetention"],
-    ["Q49 — Dropout ratio is higher in schools strictly enforcing English-only policy","englishOnlyHighDropout"],
-    ["Q50 — Students repeat grades more often due to language comprehension issues","repeatGradesLanguageIssue"],
-    ["Q51 — Early conceptual gaps caused by language difficulty lead to eventual dropout","earlyGapsLeadDropout"],
+    ["Q38 — Students are more likely to drop out when they do not understand the language of instruction","dropoutDueToLanguage"],
+    ["Q39 — English-medium of instruction at primary level contributes to early grade dropout","englishPrimaryDropout"],
+    ["Q40 — Students from rural backgrounds drop out more due to language difficulties","ruralDropoutLanguage"],
+    ["Q41 — Mother tongue instruction can reduce dropout ratio in early grades","motherTongueReduceDropout"],
+    ["Q42 — Language mismatch between home and school increases dropout risk","languageMismatchDropoutRisk"],
+    ["Q43 — Students losing interest due to language difficulty leads to absenteeism","languageAbsenteeism"],
+    ["Q44 — Urdu medium reduces dropout compared to English medium in public schools","urduReduceDropout"],
+    ["Q45 — Students with weak English foundation are more likely to leave school","weakEnglishDropout"],
+    ["Q46 — Multilingual instruction improves student retention","multilingualRetention"],
+    ["Q47 — Dropout ratio is higher in schools strictly enforcing English-only policy","englishOnlyHighDropout"],
+    ["Q48 — Students repeat grades more often due to language comprehension issues","repeatGradesLanguageIssue"],
+    ["Q49 — Early conceptual gaps caused by language difficulty lead to eventual dropout","earlyGapsLeadDropout"],
   ];
 
   const MULTI_QS = [
-    ["Q52 — Dropout is highest at","highestDropoutLevel",["Primary level","Middle level","Matric level","Equal at all levels"]],
-    ["Q53 — Language-related dropout is most common at","languageDropoutStage",["Grade 1–3","Grade 4–5","Grade 6–8","Grade 9–10"]],
-    ["Q54 — Students at risk of dropout mostly belong to","atRiskStudentsGroup",["Mother tongue speakers (non-Urdu)","Urdu-medium background","Weak English background","All equally"]],
+    ["Q50 — Dropout is highest at","highestDropoutLevel",["Primary level","Middle level","Matric level","Equal at all levels"]],
+    ["Q51 — Language-related dropout is most common at","languageDropoutStage",["Grade 1–3","Grade 4–5","Grade 6–8","Grade 9–10"]],
+    ["Q52 — Students at risk of dropout mostly belong to","atRiskStudentsGroup",["Mother tongue speakers (non-Urdu)","Urdu-medium background","Weak English background","All equally"]],
   ];
 
   const total = data.length || 1;
-  // Agreement % for key dropout questions
   const agreeDropout = (key) => Math.round((data.filter(r=>["4","5"].includes(String(r[key]))).length / total)*100);
 
   return (
@@ -934,7 +841,7 @@ function SectionK({ data }) {
       </div>
 
       <div className="an-chart-block" style={{marginBottom:28}}>
-        <div className="an-chart-title">Section K — Dropout Ratio Q40–Q51 (Likert breakdown)</div>
+        <div className="an-chart-title">Section H — Medium of Instruction and Dropout Ratio Q38–Q49 (Likert breakdown)</div>
         <LikertGroup questions={LIKERT_QS} data={data} />
       </div>
 
@@ -948,9 +855,9 @@ function SectionK({ data }) {
         ))}
       </div>
 
-      {/* Q52 by Area cross-tab */}
+      {/* Q50 by Area cross-tab */}
       <div className="an-chart-block">
-        <div className="an-chart-title">Q52 — Highest Dropout Level (by Area)</div>
+        <div className="an-chart-title">Q50 — Dropout is Highest at (by Area)</div>
         <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
           {["Urban","Semi-Urban","Rural"].map(area => {
             const f = data.filter(r=>r.area===area);
@@ -970,19 +877,17 @@ function SectionK({ data }) {
 
 /* ══════════════════════ SECTIONS CONFIG ════════════════════════════ */
 const SECTIONS = [
-  { id:"A", label:"§A Background Information",       icon:"👤", desc:"Respondent category, institution, area, province" },
-  { id:"B", label:"§B Linguistic Reality",           icon:"🗣️", desc:"Language mismatch, comprehension, participation" },
-  { id:"C", label:"§C Educational Effectiveness",    icon:"📚", desc:"Mother tongue learning, rote learning, multilingualism" },
-  { id:"D", label:"§D Equity & Access",              icon:"⚖️", desc:"Inequality, elite bias, regional disadvantage" },
-  { id:"E", label:"§E Teacher Capacity",             icon:"👩‍🏫", desc:"English teaching, code-switching, shared language" },
-  { id:"F", label:"§F Primary MOI (Grades 1–5)",    icon:"🏫", desc:"Preferred medium at primary level" },
-  { id:"G", label:"§G Middle MOI (Grades 6–8)",     icon:"📖", desc:"Preferred medium at middle level" },
-  { id:"H", label:"§H Matric MOI (Grades 9–10)",    icon:"🎓", desc:"Preferred medium at matriculation level" },
-  { id:"I", label:"§I Policy Direction",             icon:"📜", desc:"Multilingual policy, regional flexibility, evidence-based" },
-  { id:"K", label:"§K Dropout Ratio",                icon:"📉", desc:"Language-related dropout and retention analysis" },
+  { id:"A", label:"§A Background Information",                                         icon:"👤", desc:"Respondent category, institution, area, province" },
+  { id:"B", label:"§B Language of Instruction and Educational Effectiveness",          icon:"🗣️", desc:"Language mismatch, comprehension, participation, MOI effectiveness" },
+  { id:"C", label:"§C Equity and Access",                                              icon:"⚖️", desc:"Inequality, elite bias, regional disadvantage, job opportunities" },
+  { id:"D", label:"§D Teacher Capacity",                                               icon:"👩‍🏫", desc:"English teaching, code-switching, shared language" },
+  { id:"E", label:"§E Preferred Medium of Instruction — Primary Level (Grades 1–5)",  icon:"🏫", desc:"Preferred medium at primary level" },
+  { id:"F", label:"§F Preferred Medium of Instruction — Middle Level (Grades 6–8)",   icon:"📖", desc:"Preferred medium at middle level" },
+  { id:"G", label:"§G Preferred Medium of Instruction — Matriculation Level (Grades 9–10)", icon:"🎓", desc:"Preferred medium at matriculation level" },
+  { id:"H", label:"§H Medium of Instruction and Dropout Ratio",                        icon:"📉", desc:"Language-related dropout and retention analysis" },
 ];
 
-const SECTION_COMPONENTS = { A:SectionA, B:SectionB, C:SectionC, D:SectionD, E:SectionE, F:SectionF, G:SectionG, H:SectionH, I:SectionI, K:SectionK };
+const SECTION_COMPONENTS = { A:SectionA, B:SectionB, C:SectionC, D:SectionD, E:SectionE, F:SectionF, G:SectionG, H:SectionH };
 
 /* ══════════════════════ MAIN ════════════════════════════════════════ */
 export default function AnalyticsPage({ onBack }) {
