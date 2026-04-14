@@ -52,7 +52,7 @@ export default function SurveyPage2({ form, onSet, onBack, onComplete, submittin
               <Likert value={form.d14} onChange={v => onSet("d14", v)} />
             </FieldRow>
             {/* NEW Q16 — replaces the slot left by D15 */}
-            <FieldRow label="Q16 — Job Opportunities are available for English medium students.">
+            <FieldRow label="Q16 — More Job Opportunities are available for English medium students.">
               <Likert value={form.c16new} onChange={v => onSet("c16new", v)} />
             </FieldRow>
           </div>
