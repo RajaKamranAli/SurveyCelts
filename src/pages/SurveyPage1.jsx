@@ -29,8 +29,7 @@ export default function SurveyPage1({ form, onSet, onNext, onBack }) {
             </div>
             <div className="card-header-tags">
               <span className="card-header-tag">§A Background Information</span>
-              <span className="card-header-tag">§B Linguistic Reality</span>
-              <span className="card-header-tag">§C Educational Effectiveness</span>
+              <span className="card-header-tag">§B Language of Instruction and Educational Effectiveness</span>
             </div>
           </div>
         </div>
@@ -49,10 +48,12 @@ export default function SurveyPage1({ form, onSet, onNext, onBack }) {
             </FieldRow>
           </div>
 
-          {/* ── SECTION B ─────────────────────────────────── */}
-          <div className="section-block">
-            <SectionHeader badge="Section B" title="Linguistic Reality of Learners" />
+          {/* ── SECTION B — Language of Instruction and Educational Effectiveness ── */}
+          {/* (merged former Section B + Section C; D15 appended at end)             */}
+          <div className="section-block" style={{ marginBottom: 0 }}>
+            <SectionHeader badge="Section B" title="Language of Instruction and Educational Effectiveness" />
 
+            {/* ── former Section B questions ── */}
             <FieldRow label="Q1 — Students understand concepts better in their mother tongue.">
               <Likert value={form.b1} onChange={v => onSet("b1", v)} />
             </FieldRow>
@@ -65,32 +66,44 @@ export default function SurveyPage1({ form, onSet, onNext, onBack }) {
             <FieldRow label="Q4 — English medium creates comprehension barriers for rural students.">
               <Likert value={form.b4} onChange={v => onSet("b4", v)} />
             </FieldRow>
-            <FieldRow label="Q5 — Students actively participate when teachers use local languages.">
-              <Likert value={form.b5} onChange={v => onSet("b5", v)} />
+
+            {/* ── NEW Q5 (added after old Q4) ── */}
+            <FieldRow label="Q5 — English medium creates comprehension barriers for urban students.">
+              <Likert value={form.b5new} onChange={v => onSet("b5new", v)} />
             </FieldRow>
-            <FieldRow label="Q6 — Language mismatch affects learning outcomes.">
+
+            {/* ── old b6 (text changed) → now Q6 ── */}
+            <FieldRow label="Q6 — Teaching in foreign Language affects learning outcomes.">
               <Likert value={form.b6} onChange={v => onSet("b6", v)} />
             </FieldRow>
-          </div>
 
-          {/* ── SECTION C ─────────────────────────────────── */}
-          <div className="section-block" style={{ marginBottom: 0 }}>
-            <SectionHeader badge="Section C" title="Educational Effectiveness" />
+            {/* ── old b5 → now Q7 ── */}
+            <FieldRow label="Q7 — Students actively participate when teachers use local languages.">
+              <Likert value={form.b5} onChange={v => onSet("b5", v)} />
+            </FieldRow>
 
-            <FieldRow label="Q7 — Early grade education should be in mother tongue.">
+            {/* ── former Section C questions merged in (Q11 deleted) ── */}
+            {/* old c7 → Q8 */}
+            <FieldRow label="Q8 — Early grade education should be in mother tongue.">
               <Likert value={form.c7} onChange={v => onSet("c7", v)} />
             </FieldRow>
-            <FieldRow label="Q8 — Conceptual learning improves when taught in familiar language.">
+            {/* old c8 → Q9 (text changed: "familiar language" → "mother tongue") */}
+            <FieldRow label="Q9 — Conceptual learning improves when taught in mother tongue.">
               <Likert value={form.c8} onChange={v => onSet("c8", v)} />
             </FieldRow>
-            <FieldRow label="Q9 — English medium promotes rote learning at early stages.">
+            {/* old c9 → Q10 */}
+            <FieldRow label="Q10 — English medium promotes rote learning at early stages.">
               <Likert value={form.c9} onChange={v => onSet("c9", v)} />
             </FieldRow>
-            <FieldRow label="Q10 — Urdu can function as a bridge language in multilingual classrooms.">
+            {/* old c10 → Q11 */}
+            <FieldRow label="Q11 — Urdu can function as a bridge language in multilingual classrooms.">
               <Likert value={form.c10} onChange={v => onSet("c10", v)} />
             </FieldRow>
-            <FieldRow label="Q11 — Multilingual instruction improves learning outcomes.">
-              <Likert value={form.c11} onChange={v => onSet("c11", v)} />
+            {/* old c11 (Q11 original) DELETED — not rendered */}
+
+            {/* ── old D15 moved here → Q12 ── */}
+            <FieldRow label="Q12 — Mother tongue instruction reduces learning gaps.">
+              <Likert value={form.d15} onChange={v => onSet("d15", v)} />
             </FieldRow>
           </div>
 
@@ -99,7 +112,7 @@ export default function SurveyPage1({ form, onSet, onNext, onBack }) {
         <div className="card-footer">
           <button className="btn btn-ghost" onClick={onBack}>← Cancel</button>
           <button className="btn btn-primary" onClick={onNext}>
-            Continue → Sections D – J
+            Continue → Sections C – I
           </button>
         </div>
       </div>

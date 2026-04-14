@@ -414,62 +414,56 @@ const SECTIONS = [
     ["Area","area"],
     ["Province","province"],
   ]},
-  { title:"§B Linguistic Reality of Learners", fields:[
+  { title:"§B Language of Instruction & Effectiveness", fields:[
     ["Mother Tongue Understanding","motherTongueUnderstanding"],
     ["English Difficulty (Early Grades)","englishDifficultyEarlyGrades"],
     ["Urdu More Accessible","urduMoreAccessible"],
     ["English Barrier (Rural)","englishBarrierRural"],
+    ["English Barrier (Urban)","englishBarrierUrban"],
+    ["Foreign Language Affects Learning","foreignLanguageAffectsLearning"],
     ["Participation (Local Language)","participationLocalLanguage"],
-    ["Language Mismatch Impact","languageMismatchImpact"],
-  ]},
-  { title:"§C Educational Effectiveness", fields:[
-    ["Early Education in Mother Tongue","earlyEducationMotherTongue"],
-    ["Concept Learning (Familiar Language)","conceptLearningFamiliarLanguage"],
+    ["Early Education Mother Tongue","earlyEducationMotherTongue"],
+    ["Concept Learning Mother Tongue","conceptLearningMotherTongue"],
     ["English Promotes Rote Learning","englishPromotesRoteLearning"],
     ["Urdu as Bridge Language","urduBridgeLanguage"],
-    ["Multilingual Improves Learning","multilingualImprovesLearning"],
+    ["Mother Tongue Reduces Gap","motherTongueReducesGap"],
   ]},
-  { title:"§D Equity and Access", fields:[
+  { title:"§C Equity and Access", fields:[
     ["English Favors Elite","englishFavorsElite"],
     ["Regional Students Disadvantaged","regionalStudentsDisadvantaged"],
     ["Language Policy Inequality","languagePolicyInequality"],
-    ["Mother Tongue Reduces Gap","motherTongueReducesGap"],
+    ["Job Opportunities (English)","jobOpportunitiesEnglish"],
   ]},
-  { title:"§E Teacher Capacity", fields:[
+  { title:"§D Teacher Capacity", fields:[
     ["Teachers Effective in English","teachersEffectiveEnglish"],
     ["Teachers Switch to Local Language","teachersSwitchLocalLanguage"],
-    ["Multilingual Flexible Policy","multilingualFlexiblePolicy"],
+    ["Teacher Can Teach Urdu/Local","teacherCanTeachUrduLocal"],
     ["Interaction (Shared Language)","interactionSharedLanguage"],
+    ["Teacher Uses Urdu/Local in English","teacherUsesUrduLocalInEnglish"],
   ]},
-  { title:"§F Primary Level MOI (Grades 1–5)", fields:[
+  { title:"§E Primary Level MOI (Grades 1–5)", fields:[
     ["Mother Tongue at Primary","motherTonguePrimary"],
     ["Urdu at Primary","urduPrimary"],
     ["English at Primary","englishPrimary"],
     ["Bilingual (Mother Tongue + Urdu)","bilingualMotherUrdu"],
     ["Gradual Transition","gradualTransitionPrimary"],
   ]},
-  { title:"§G Middle Level MOI (Grades 6–8)", fields:[
+  { title:"§F Middle Level MOI (Grades 6–8)", fields:[
     ["Urdu at Middle","urduMiddle"],
     ["English at Middle","englishMiddle"],
-    ["Bilingual (Urdu-English)","bilingualUrduEnglish"],
+    ["Bilingual (Urdu-English)","bilingualUrduEnglishMiddle"],
     ["Mother Tongue Support at Middle","motherTongueSupportMiddle"],
     ["Gradual Shift to English","gradualShiftEnglishMiddle"],
   ]},
-  { title:"§H Matric Level MOI (Grades 9–10)", fields:[
+  { title:"§G Matric Level MOI (Grades 9–10)", fields:[
     ["English at Matric","englishMatric"],
+    ["Mother Tongue at Matric","motherTongueMatric"],
     ["Urdu at Matric","urduMatric"],
     ["Bilingual at Matric","bilingualMatric"],
     ["Prepared for Higher Education","preparedForHigherEducation"],
     ["Technical Subjects in English","technicalSubjectsEnglish"],
   ]},
-  { title:"§I Policy Direction", fields:[
-    ["Need Multilingual Policy","needMultilingualPolicy"],
-    ["Policy Reflect Diversity","policyReflectDiversity"],
-    ["Uniform Policy Not Suitable","uniformPolicyNotSuitable"],
-    ["Regional Flexibility","regionalFlexibility"],
-    ["Evidence-Based Policy","evidenceBasedPolicy"],
-  ]},
-  { title:"§K Dropout Ratio", fields:[
+  { title:"§H Dropout and Language", fields:[
     ["Dropout Due to Language","dropoutDueToLanguage"],
     ["English Primary Dropout","englishPrimaryDropout"],
     ["Rural Dropout (Language)","ruralDropoutLanguage"],
@@ -531,41 +525,41 @@ export default function Dashboard({ onStart, onAnalytics }) {
   const STATS = [
     { icon:"📊", val:surveys.length, lbl:"Total Responses",   color:"#2d6a4f", chip:"Cumulative", chipBg:"rgba(45,106,79,0.10)",  chipClr:"#2d6a4f", topbar:"linear-gradient(90deg,#2d6a4f,#40916c)" },
     { icon:"📅", val:todayCount,     lbl:"Collected Today",   color:"#b5860d", chip:"Live",        chipBg:"rgba(181,134,13,0.10)", chipClr:"#b5860d", topbar:"linear-gradient(90deg,#b5860d,#e8b030)" },
-    { icon:"📋", val:10,             lbl:"Survey Sections",   color:"#5a5a72", chip:"Fixed",       chipBg:"rgba(90,90,114,0.08)",  chipClr:"#5a5a72", topbar:"linear-gradient(90deg,#5a5a72,#9898aa)" },
+    { icon:"📋", val:8,             lbl:"Survey Sections",   color:"#5a5a72", chip:"Fixed",       chipBg:"rgba(90,90,114,0.08)",  chipClr:"#5a5a72", topbar:"linear-gradient(90deg,#5a5a72,#9898aa)" },
     { icon:"🌍", val:6,              lbl:"Provinces Covered", color:"#9b4444", chip:"PK",          chipBg:"rgba(155,68,68,0.08)",  chipClr:"#9b4444", topbar:"linear-gradient(90deg,#9b4444,#e07070)" },
   ];
 
   // CSV export with new fields
   const handleExport = () => {
     if (!surveys.length) return;
-    const headers = [
-      "#","Respondent Category","Institution Type","Area","Province",
-      "Mother Tongue Understanding","English Difficulty Early Grades","Urdu More Accessible","English Barrier Rural","Participation Local Language","Language Mismatch Impact",
-      "Early Education Mother Tongue","Concept Learning Familiar Language","English Promotes Rote Learning","Urdu Bridge Language","Multilingual Improves Learning",
-      "English Favors Elite","Regional Students Disadvantaged","Language Policy Inequality","Mother Tongue Reduces Gap",
-      "Teachers Effective English","Teachers Switch Local Language","Multilingual Flexible Policy","Interaction Shared Language",
-      "Mother Tongue Primary","Urdu Primary","English Primary","Bilingual Mother Urdu","Gradual Transition Primary",
-      "Urdu Middle","English Middle","Bilingual Urdu English","Mother Tongue Support Middle","Gradual Shift English Middle",
-      "English Matric","Urdu Matric","Bilingual Matric","Prepared Higher Education","Technical Subjects English",
-      "Need Multilingual Policy","Policy Reflect Diversity","Uniform Policy Not Suitable","Regional Flexibility","Evidence Based Policy",
-      "Dropout Due To Language","English Primary Dropout","Rural Dropout Language","Mother Tongue Reduce Dropout","Language Mismatch Dropout Risk","Language Absenteeism",
-      "Urdu Reduce Dropout","Weak English Dropout","Multilingual Retention","English Only High Dropout","Repeat Grades Language Issue","Early Gaps Lead Dropout",
-      "Highest Dropout Level","Language Dropout Stage","At Risk Students Group"
-    ];
-    const keys = [
-      "index","respondentCategory","institutionType","area","province",
-      "motherTongueUnderstanding","englishDifficultyEarlyGrades","urduMoreAccessible","englishBarrierRural","participationLocalLanguage","languageMismatchImpact",
-      "earlyEducationMotherTongue","conceptLearningFamiliarLanguage","englishPromotesRoteLearning","urduBridgeLanguage","multilingualImprovesLearning",
-      "englishFavorsElite","regionalStudentsDisadvantaged","languagePolicyInequality","motherTongueReducesGap",
-      "teachersEffectiveEnglish","teachersSwitchLocalLanguage","multilingualFlexiblePolicy","interactionSharedLanguage",
-      "motherTonguePrimary","urduPrimary","englishPrimary","bilingualMotherUrdu","gradualTransitionPrimary",
-      "urduMiddle","englishMiddle","bilingualUrduEnglish","motherTongueSupportMiddle","gradualShiftEnglishMiddle",
-      "englishMatric","urduMatric","bilingualMatric","preparedForHigherEducation","technicalSubjectsEnglish",
-      "needMultilingualPolicy","policyReflectDiversity","uniformPolicyNotSuitable","regionalFlexibility","evidenceBasedPolicy",
-      "dropoutDueToLanguage","englishPrimaryDropout","ruralDropoutLanguage","motherTongueReduceDropout","languageMismatchDropoutRisk","languageAbsenteeism",
-      "urduReduceDropout","weakEnglishDropout","multilingualRetention","englishOnlyHighDropout","repeatGradesLanguageIssue","earlyGapsLeadDropout",
-      "highestDropoutLevel","languageDropoutStage","atRiskStudentsGroup"
-    ];
+  const headers = [
+  "#","Respondent Category","Institution Type","Area","Province",
+  "Mother Tongue Understanding","English Difficulty Early Grades","Urdu More Accessible","English Barrier Rural",
+  "English Barrier Urban","Foreign Language Affects Learning","Participation Local Language",
+  "Early Education Mother Tongue","Concept Learning Mother Tongue","English Promotes Rote Learning","Urdu Bridge Language","Mother Tongue Reduces Gap",
+  "English Favors Elite","Regional Students Disadvantaged","Language Policy Inequality","Job Opportunities English",
+  "Teachers Effective English","Teachers Switch Local Language","Teacher Can Teach Urdu Local","Interaction Shared Language","Teacher Uses Urdu Local In English",
+  "Mother Tongue Primary","Urdu Primary","English Primary","Bilingual Mother Urdu","Gradual Transition Primary",
+  "Urdu Middle","English Middle","Bilingual Urdu English Middle","Mother Tongue Support Middle","Gradual Shift English Middle",
+  "English Matric","Mother Tongue Matric","Urdu Matric","Bilingual Matric","Prepared Higher Education","Technical Subjects English",
+  "Dropout Due To Language","English Primary Dropout","Rural Dropout Language","Mother Tongue Reduce Dropout","Language Mismatch Dropout Risk","Language Absenteeism",
+  "Urdu Reduce Dropout","Weak English Dropout","Multilingual Retention","English Only High Dropout","Repeat Grades Language Issue","Early Gaps Lead Dropout",
+  "Highest Dropout Level","Language Dropout Stage","At Risk Students Group"
+];
+const keys = [
+  "index","respondentCategory","institutionType","area","province",
+  "motherTongueUnderstanding","englishDifficultyEarlyGrades","urduMoreAccessible","englishBarrierRural",
+  "englishBarrierUrban","foreignLanguageAffectsLearning","participationLocalLanguage",
+  "earlyEducationMotherTongue","conceptLearningMotherTongue","englishPromotesRoteLearning","urduBridgeLanguage","motherTongueReducesGap",
+  "englishFavorsElite","regionalStudentsDisadvantaged","languagePolicyInequality","jobOpportunitiesEnglish",
+  "teachersEffectiveEnglish","teachersSwitchLocalLanguage","teacherCanTeachUrduLocal","interactionSharedLanguage","teacherUsesUrduLocalInEnglish",
+  "motherTonguePrimary","urduPrimary","englishPrimary","bilingualMotherUrdu","gradualTransitionPrimary",
+  "urduMiddle","englishMiddle","bilingualUrduEnglishMiddle","motherTongueSupportMiddle","gradualShiftEnglishMiddle",
+  "englishMatric","motherTongueMatric","urduMatric","bilingualMatric","preparedForHigherEducation","technicalSubjectsEnglish",
+  "dropoutDueToLanguage","englishPrimaryDropout","ruralDropoutLanguage","motherTongueReduceDropout","languageMismatchDropoutRisk","languageAbsenteeism",
+  "urduReduceDropout","weakEnglishDropout","multilingualRetention","englishOnlyHighDropout","repeatGradesLanguageIssue","earlyGapsLeadDropout",
+  "highestDropoutLevel","languageDropoutStage","atRiskStudentsGroup"
+];
     const escape = v => `"${String(v??'').replace(/"/g,'""')}"`;
     const rows = surveys.map((s,i) => keys.map(k => escape(k==="index" ? i+1 : s[k])).join(","));
     const csv = [headers.map(escape).join(","), ...rows].join("\n");
