@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // const API_GET = "http://survey.ruqqiasultanaclinic.com/api/UserTest/getallsurvey";
 const API_GET = "/api/UserTest/getallsurvey";
@@ -399,6 +399,717 @@ const LEGEND = [["#c0392b","Strongly disagree"],["#e8a0a0","Disagree"],["#b0aaa0
             <canvas id={chartId+"_r"} role="img" aria-label="Radar chart">Radar.</canvas>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RELATIONSHIPS MODULE — cross-question relationship visualisations
+   ----------------------------------------------------------------------
+     • Correlation Heatmap          (Pearson, Likert questions)
+     • Question-vs-Question Picker  (interactive stacked cross-tab + bubble)
+     • Sankey / Flow Diagram        (answer flow between 2-3 questions)
+     • Network Graph                (strongest correlation web)
+     • TopCorrelations              (small card embedded under each section)
+   All charts are pure SVG / DOM — no extra deps required.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Master question bank — every Likert question across B-H */
+const ALL_LIKERT_QUESTIONS = [
+  // Section B
+  ["B-Q1",  "MT understanding",          "motherTongueUnderstanding",       "B"],
+  ["B-Q2",  "English diff. early",       "englishDifficultyEarlyGrades",    "B"],
+  ["B-Q3",  "Urdu more accessible",      "urduMoreAccessible",              "B"],
+  ["B-Q4",  "Eng barrier rural",         "englishBarrierRural",             "B"],
+  ["B-Q5",  "Eng barrier urban",         "englishBarrierUrban",             "B"],
+  ["B-Q6",  "Foreign lang outcomes",     "teachingForeignLanguageOutcomes", "B"],
+  ["B-Q7",  "Participation local lang",  "participationLocalLanguage",      "B"],
+  ["B-Q8",  "Early ed in MT",            "earlyEducationMotherTongue",      "B"],
+  ["B-Q9",  "Concept learn MT",          "conceptLearningMotherTongue",     "B"],
+  ["B-Q10", "Eng = rote learning",       "englishPromotesRoteLearning",     "B"],
+  ["B-Q11", "Urdu bridge lang",          "urduBridgeLanguage",              "B"],
+  ["B-Q12", "MT reduces gap",            "motherTongueReducesGap",          "B"],
+  // Section C
+  ["C-Q13", "Eng favors elite",          "englishFavorsElite",              "C"],
+  ["C-Q14", "Regional disadvantaged",    "regionalStudentsDisadvantaged",   "C"],
+  ["C-Q15", "Policy = inequality",       "languagePolicyInequality",        "C"],
+  ["C-Q16", "Jobs for English med.",     "jobOpportunitiesEnglishMedium",   "C"],
+  // Section D
+  ["D-Q17", "Teachers effective Eng",    "teachersEffectiveEnglish",        "D"],
+  ["D-Q18", "Teachers switch local",     "teachersSwitchLocalLanguage",     "D"],
+  ["D-Q19", "Teach in Urdu/local",       "teacherUrduLocalLanguage",        "D"],
+  ["D-Q20", "Interaction shared lang",   "interactionSharedLanguage",       "D"],
+  ["D-Q21", "Urdu while Eng subj",       "teacherUrduWhileEnglish",         "D"],
+  // Section E
+  ["E-Q22", "MT primary",                "motherTonguePrimary",             "E"],
+  ["E-Q23", "Urdu primary",              "urduPrimary",                     "E"],
+  ["E-Q24", "Eng primary",               "englishPrimary",                  "E"],
+  ["E-Q25", "Bilingual MT+Urdu",         "bilingualMotherUrdu",             "E"],
+  ["E-Q26", "Gradual transition",        "gradualTransitionPrimary",        "E"],
+  // Section F
+  ["F-Q27", "Urdu middle",               "urduMiddle",                      "F"],
+  ["F-Q28", "Eng middle",                "englishMiddle",                   "F"],
+  ["F-Q29", "Bilingual Urdu-Eng",        "bilingualUrduEnglish",            "F"],
+  ["F-Q30", "MT support middle",         "motherTongueSupportMiddle",       "F"],
+  ["F-Q31", "Gradual shift Eng",         "gradualShiftEnglishMiddle",       "F"],
+  // Section G
+  ["G-Q32", "Eng matric",                "englishMatric",                   "G"],
+  ["G-Q33", "MT matric",                 "motherTongueMatric",              "G"],
+  ["G-Q34", "Urdu matric",               "urduMatric",                      "G"],
+  ["G-Q35", "Bilingual matric",          "bilingualMatric",                 "G"],
+  ["G-Q36", "Prepared higher ed",        "preparedForHigherEducation",      "G"],
+  ["G-Q37", "Technical in Eng",          "technicalSubjectsEnglish",        "G"],
+  // Section H
+  ["H-Q38", "Dropout from language",     "dropoutDueToLanguage",            "H"],
+  ["H-Q39", "Eng primary dropout",       "englishPrimaryDropout",           "H"],
+  ["H-Q40", "Rural dropout lang",        "ruralDropoutLanguage",            "H"],
+  ["H-Q41", "MT reduces dropout",        "motherTongueReduceDropout",       "H"],
+  ["H-Q42", "Lang mismatch dropout",     "languageMismatchDropoutRisk",     "H"],
+  ["H-Q43", "Lang absenteeism",          "languageAbsenteeism",             "H"],
+  ["H-Q44", "Urdu lower dropout",        "urduReduceDropout",               "H"],
+  ["H-Q45", "Weak Eng dropout",          "weakEnglishDropout",              "H"],
+  ["H-Q46", "Multilingual retention",    "multilingualRetention",           "H"],
+  ["H-Q47", "Eng-only high dropout",     "englishOnlyHighDropout",          "H"],
+  ["H-Q48", "Repeat grades lang",        "repeatGradesLanguageIssue",       "H"],
+  ["H-Q49", "Early gaps dropout",        "earlyGapsLeadDropout",            "H"],
+];
+
+const SECTION_COLOR = {
+  B: "#2d6a4f", C: "#8e44ad", D: "#3b6fd4", E: "#e8b030",
+  F: "#d35400", G: "#16a085", H: "#c0392b",
+};
+
+/* Likert palette used inside the Relationships module (independent of the
+   one used by LikertGroup above so visuals match the relationships design). */
+const REL_LIKERT_NAMES  = ["Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"];
+const REL_LIKERT_COLORS = ["#c0392b","#e07070","#b0aaa0","#74c69d","#2d6a4f"];
+
+/* Math helpers */
+function pearson(xs, ys) {
+  const pairs = [];
+  for (let i = 0; i < xs.length; i++) {
+    const a = Number(xs[i]); const b = Number(ys[i]);
+    if (!isNaN(a) && !isNaN(b) && a > 0 && b > 0) pairs.push([a, b]);
+  }
+  const n = pairs.length;
+  if (n < 3) return { r: 0, n };
+  let sx=0, sy=0, sxx=0, syy=0, sxy=0;
+  for (const [a,b] of pairs) { sx+=a; sy+=b; sxx+=a*a; syy+=b*b; sxy+=a*b; }
+  const num = n*sxy - sx*sy;
+  const den = Math.sqrt((n*sxx - sx*sx) * (n*syy - sy*sy));
+  return { r: den === 0 ? 0 : num/den, n };
+}
+
+function corrColor(r) {
+  const t = Math.max(-1, Math.min(1, r));
+  if (t >= 0) {
+    const a = t;
+    const R = Math.round(247 + (45  - 247) * a);
+    const G = Math.round(244 + (106 - 244) * a);
+    const B = Math.round(239 + (79  - 239) * a);
+    return `rgb(${R},${G},${B})`;
+  } else {
+    const a = -t;
+    const R = Math.round(247 + (192 - 247) * a);
+    const G = Math.round(244 + (57  - 244) * a);
+    const B = Math.round(239 + (43  - 239) * a);
+    return `rgb(${R},${G},${B})`;
+  }
+}
+
+/* 1. CORRELATION HEATMAP */
+function CorrelationHeatmap({ data, questions = ALL_LIKERT_QUESTIONS }) {
+  const matrix = useMemo(() => {
+    return questions.map(([,, k1]) =>
+      questions.map(([,, k2]) => pearson(data.map(r => r[k1]), data.map(r => r[k2])).r)
+    );
+  }, [data, questions]);
+
+  const [hover, setHover] = useState(null);
+  const cell = 22;
+  const labelW = 110;
+  const size = questions.length * cell;
+
+  return (
+    <div style={{overflow:"auto",maxWidth:"100%"}}>
+      <div style={{display:"inline-block",position:"relative"}}>
+        <svg width={size + labelW + 30} height={size + labelW + 20} style={{fontFamily:"DM Sans, sans-serif"}}>
+          {questions.map(([code,,, sec], i) => (
+            <text key={"x"+i}
+              x={labelW + i*cell + cell/2}
+              y={labelW - 6}
+              fontSize="9"
+              fill={SECTION_COLOR[sec] || "#5a5a72"}
+              textAnchor="end"
+              transform={`rotate(-55, ${labelW + i*cell + cell/2}, ${labelW - 6})`}
+              fontWeight="600"
+            >{code}</text>
+          ))}
+          {questions.map(([code,,, sec], i) => (
+            <text key={"y"+i}
+              x={labelW - 6}
+              y={labelW + i*cell + cell/2 + 3}
+              fontSize="9"
+              fill={SECTION_COLOR[sec] || "#5a5a72"}
+              textAnchor="end"
+              fontWeight="600"
+            >{code}</text>
+          ))}
+          {matrix.map((row, i) => row.map((r, j) => (
+            <g key={`${i}-${j}`}
+              onMouseEnter={() => setHover({i,j,r})}
+              onMouseLeave={() => setHover(null)}
+            >
+              <rect
+                x={labelW + j*cell}
+                y={labelW + i*cell}
+                width={cell-1} height={cell-1}
+                fill={corrColor(r)}
+                stroke={hover && hover.i===i && hover.j===j ? "#1a1a2e" : "#fff"}
+                strokeWidth={hover && hover.i===i && hover.j===j ? 1.5 : 0.5}
+                rx="2"
+              />
+              {Math.abs(r) >= 0.4 && (
+                <text
+                  x={labelW + j*cell + (cell-1)/2}
+                  y={labelW + i*cell + (cell-1)/2 + 3}
+                  fontSize="7.5"
+                  fill={Math.abs(r) > 0.6 ? "#fff" : "#1a1a2e"}
+                  textAnchor="middle"
+                  fontWeight="600"
+                  pointerEvents="none"
+                >{r.toFixed(2)}</text>
+              )}
+            </g>
+          )))}
+        </svg>
+        {hover && (
+          <div style={{
+            position:"absolute", top:8, right:8,
+            background:"#1a1a2e", color:"#fff", padding:"8px 12px",
+            borderRadius:8, fontSize:11, lineHeight:1.5,
+            boxShadow:"0 4px 14px rgba(0,0,0,0.2)", maxWidth:240
+          }}>
+            <div style={{fontWeight:600,marginBottom:4}}>
+              {questions[hover.i][0]} × {questions[hover.j][0]}
+            </div>
+            <div>{questions[hover.i][1]}</div>
+            <div style={{color:"#9898aa"}}>vs</div>
+            <div>{questions[hover.j][1]}</div>
+            <div style={{marginTop:6,fontSize:13,fontWeight:700,color:hover.r>=0?"#74c69d":"#e07070"}}>
+              r = {hover.r.toFixed(3)}
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14,fontSize:11,color:"#5a5a72"}}>
+        <span>Strong negative</span>
+        <div style={{
+          width:200, height:12, borderRadius:3,
+          background:"linear-gradient(90deg, rgb(192,57,43) 0%, rgb(247,244,239) 50%, rgb(45,106,79) 100%)"
+        }}/>
+        <span>Strong positive</span>
+        <span style={{marginLeft:"auto",color:"#9898aa"}}>Pearson r · cells with |r|≥0.4 labeled</span>
+      </div>
+    </div>
+  );
+}
+
+/* 2. QUESTION-vs-QUESTION PICKER */
+function QuestionVsQuestion({ data, questions = ALL_LIKERT_QUESTIONS }) {
+  const [keyA, setKeyA] = useState(questions[0][2]);
+  const [keyB, setKeyB] = useState(questions[7][2]);
+
+  const qA = questions.find(q => q[2] === keyA);
+  const qB = questions.find(q => q[2] === keyB);
+
+  const matrix = useMemo(() => {
+    const m = Array.from({length:5}, () => Array(5).fill(0));
+    data.forEach(r => {
+      const a = parseInt(r[keyA]); const b = parseInt(r[keyB]);
+      if (a>=1 && a<=5 && b>=1 && b<=5) m[a-1][b-1]++;
+    });
+    return m;
+  }, [data, keyA, keyB]);
+
+  const corr = useMemo(
+    () => pearson(data.map(r => r[keyA]), data.map(r => r[keyB])),
+    [data, keyA, keyB]
+  );
+
+  const totalPerA = matrix.map(row => row.reduce((s,v)=>s+v,0));
+
+  const select = (val, onChange) => (
+    <select
+      value={val} onChange={e => onChange(e.target.value)}
+      style={{
+        width:"100%", padding:"10px 12px", border:"1px solid #e0dbd0",
+        borderRadius:8, fontSize:12, fontFamily:"DM Sans, sans-serif",
+        color:"#1a1a2e", background:"#fff", cursor:"pointer",
+        boxShadow:"0 2px 6px rgba(0,0,0,0.04)"
+      }}
+    >
+      {questions.map(([code, lbl,, ]) => (
+        <option key={code} value={questions.find(q => q[0]===code)[2]}>
+          {code} — {lbl}
+        </option>
+      ))}
+    </select>
+  );
+
+  return (
+    <div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr auto",gap:12,alignItems:"center",marginBottom:20}}>
+        <div>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:"#2d6a4f",marginBottom:6}}>Question A</div>
+          {select(keyA, setKeyA)}
+        </div>
+        <div style={{fontSize:18,color:"#9898aa"}}>×</div>
+        <div>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:"#2d6a4f",marginBottom:6}}>Question B</div>
+          {select(keyB, setKeyB)}
+        </div>
+        <div style={{
+          background: corr.r >= 0 ? "#e8f4ef" : "#fbe6e3",
+          border:`1px solid ${corr.r >= 0 ? "#2d6a4f" : "#c0392b"}`,
+          borderRadius:10, padding:"10px 16px", textAlign:"center", minWidth:110
+        }}>
+          <div style={{fontSize:10,color:"#5a5a72",fontWeight:600}}>Correlation</div>
+          <div style={{fontFamily:"Playfair Display, serif",fontSize:22,fontWeight:700,color:corr.r>=0?"#2d6a4f":"#c0392b"}}>
+            {corr.r.toFixed(3)}
+          </div>
+          <div style={{fontSize:9,color:"#9898aa"}}>n = {corr.n}</div>
+        </div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1.1fr 1fr",gap:18}}>
+        <div style={{background:"#faf8f3",border:"1px solid #f0ebe0",borderRadius:10,padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#1a1a2e",marginBottom:14}}>
+            How <span style={{color:"#2d6a4f"}}>{qA[0]}</span> respondents answered <span style={{color:"#2d6a4f"}}>{qB[0]}</span>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {[4,3,2,1,0].map(ai => {
+              const total = totalPerA[ai] || 1;
+              return (
+                <div key={ai} style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div style={{width:90,fontSize:10,color:"#5a5a72",textAlign:"right",lineHeight:1.2}}>
+                    A: {REL_LIKERT_NAMES[ai]}
+                    <div style={{fontSize:9,color:"#9898aa"}}>n={totalPerA[ai]}</div>
+                  </div>
+                  <div style={{flex:1,display:"flex",height:24,borderRadius:4,overflow:"hidden",background:"#f0ebe0"}}>
+                    {matrix[ai].map((cnt, bi) => {
+                      const pct = (cnt/total)*100;
+                      return (
+                        <div key={bi} title={`${REL_LIKERT_NAMES[bi]}: ${cnt} (${pct.toFixed(0)}%)`} style={{
+                          width:`${pct}%`, background:REL_LIKERT_COLORS[bi],
+                          display:"flex",alignItems:"center",justifyContent:"center",
+                          fontSize:9,color:"#fff",fontWeight:600,minWidth:cnt>0?2:0
+                        }}>
+                          {pct >= 12 ? `${pct.toFixed(0)}%` : ""}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"6px 12px",marginTop:14,paddingTop:12,borderTop:"1px solid #f0ebe0"}}>
+            {REL_LIKERT_NAMES.map((n,i) => (
+              <div key={i} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"#5a5a72"}}>
+                <div style={{width:9,height:9,borderRadius:2,background:REL_LIKERT_COLORS[i]}}/>{n}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{background:"#faf8f3",border:"1px solid #f0ebe0",borderRadius:10,padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#1a1a2e",marginBottom:14}}>Joint distribution (bubble matrix)</div>
+          <svg viewBox="0 0 320 280" style={{width:"100%",height:"auto",fontFamily:"DM Sans, sans-serif"}}>
+            <text x="160" y="275" fontSize="10" fill="#5a5a72" textAnchor="middle" fontWeight="600">{qB[0]} →</text>
+            <text x="12" y="140" fontSize="10" fill="#5a5a72" textAnchor="middle" fontWeight="600" transform="rotate(-90, 12, 140)">{qA[0]} →</text>
+            {[1,2,3,4,5].map((v,i) => (
+              <g key={"gx"+i}>
+                <text x={50 + i*55} y="262" fontSize="9" fill="#9898aa" textAnchor="middle">{v}</text>
+                <text x={32} y={235 - i*45 + 3} fontSize="9" fill="#9898aa" textAnchor="middle">{v}</text>
+              </g>
+            ))}
+            {[0,1,2,3,4,5].map(i => (
+              <g key={"g"+i}>
+                <line x1={50 + i*55 - 27.5} y1="20" x2={50 + i*55 - 27.5} y2="245" stroke="#eee" strokeWidth="0.5"/>
+                <line x1="40" y1={235 - i*45 + 22.5} x2={325} y2={235 - i*45 + 22.5} stroke="#eee" strokeWidth="0.5"/>
+              </g>
+            ))}
+            {matrix.map((row, ai) => row.map((cnt, bi) => {
+              if (cnt === 0) return null;
+              const r = Math.min(20, 4 + Math.sqrt(cnt) * 3);
+              const cx = 50 + bi*55;
+              const cy = 235 - ai*45;
+              const intensity = cnt / Math.max(...matrix.flat());
+              return (
+                <g key={`b-${ai}-${bi}`}>
+                  <circle cx={cx} cy={cy} r={r}
+                    fill={`rgba(45,106,79,${0.25 + intensity*0.55})`}
+                    stroke="#2d6a4f" strokeWidth="1"/>
+                  {cnt >= 3 && (
+                    <text x={cx} y={cy+3} fontSize="9" fill="#fff" textAnchor="middle" fontWeight="600">{cnt}</text>
+                  )}
+                </g>
+              );
+            }))}
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* 3. SANKEY / FLOW DIAGRAM */
+function SankeyFlow({ data, questions = ALL_LIKERT_QUESTIONS }) {
+  const def = ["motherTonguePrimary","englishPrimary","englishMatric"];
+  const [sel, setSel] = useState(def);
+
+  const setStage = (idx, val) => setSel(s => s.map((v,i) => i===idx ? val : v));
+  const stages = sel.map(k => questions.find(q => q[2] === k) || questions[0]);
+
+  const flows = useMemo(() => {
+    const links = [];
+    for (let s = 0; s < stages.length - 1; s++) {
+      const k1 = stages[s][2]; const k2 = stages[s+1][2];
+      const map = {};
+      data.forEach(r => {
+        const a = parseInt(r[k1]); const b = parseInt(r[k2]);
+        if (a>=1 && a<=5 && b>=1 && b<=5) {
+          const key = `${a}|${b}`;
+          map[key] = (map[key] || 0) + 1;
+        }
+      });
+      links.push(map);
+    }
+    return links;
+  }, [data, sel]);
+
+  const W = 720, H = 360;
+  const colW = 140;
+  const gapX = (W - stages.length * colW) / (stages.length - 1 || 1);
+
+  const nodeData = stages.map((stage, si) => {
+    const k = stage[2];
+    const counts = [1,2,3,4,5].map(v => data.filter(r => parseInt(r[k])===v).length);
+    const total = counts.reduce((s,v)=>s+v,0) || 1;
+    let y = 30;
+    return counts.map((c, vi) => {
+      const h = (c/total) * (H - 60);
+      const node = { x: si*(colW+gapX), y, h, count: c, value: vi+1, total };
+      y += h + 4;
+      return node;
+    });
+  });
+
+  return (
+    <div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:18}}>
+        {sel.map((k, idx) => (
+          <div key={idx}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:"#2d6a4f",marginBottom:6}}>Stage {idx+1}</div>
+            <select value={k} onChange={e => setStage(idx, e.target.value)}
+              style={{width:"100%",padding:"9px 10px",border:"1px solid #e0dbd0",borderRadius:8,fontSize:11,background:"#fff",cursor:"pointer"}}>
+              {questions.map(([code, lbl,, ]) => (
+                <option key={code} value={questions.find(q=>q[0]===code)[2]}>{code} — {lbl}</option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+      <div style={{background:"#faf8f3",border:"1px solid #f0ebe0",borderRadius:10,padding:18,overflow:"auto"}}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",minWidth:600,height:"auto",fontFamily:"DM Sans, sans-serif"}}>
+          {flows.map((flowMap, si) => {
+            const sourceCol = nodeData[si];
+            const targetCol = nodeData[si+1];
+            const yOffsetSrc = sourceCol.map(()=>0);
+            const yOffsetTgt = targetCol.map(()=>0);
+            return Object.entries(flowMap).sort((a,b)=>b[1]-a[1]).map(([key, cnt]) => {
+              const [a,b] = key.split("|").map(Number);
+              const src = sourceCol[a-1]; const tgt = targetCol[b-1];
+              const ratioSrc = cnt / (src.count || 1);
+              const ratioTgt = cnt / (tgt.count || 1);
+              const hSrc = src.h * ratioSrc;
+              const hTgt = tgt.h * ratioTgt;
+              const y1 = src.y + yOffsetSrc[a-1]; yOffsetSrc[a-1] += hSrc;
+              const y2 = tgt.y + yOffsetTgt[b-1]; yOffsetTgt[b-1] += hTgt;
+              const x1 = src.x + colW; const x2 = tgt.x;
+              const cx = (x1+x2)/2;
+              const path = `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2} L${x2},${y2+hTgt} C${cx},${y2+hTgt} ${cx},${y1+hSrc} ${x1},${y1+hSrc} Z`;
+              return (
+                <path key={`${si}-${key}`} d={path}
+                  fill={REL_LIKERT_COLORS[a-1]} opacity="0.45"
+                  stroke="none">
+                  <title>{`${REL_LIKERT_NAMES[a-1]} → ${REL_LIKERT_NAMES[b-1]}: ${cnt} respondents`}</title>
+                </path>
+              );
+            });
+          })}
+          {nodeData.map((col, si) => col.map((n, vi) => (
+            <g key={`n-${si}-${vi}`}>
+              <rect x={n.x} y={n.y} width={colW} height={n.h}
+                fill={REL_LIKERT_COLORS[vi]} rx="3"/>
+              {n.h > 12 && (
+                <text x={n.x + colW/2} y={n.y + n.h/2 + 4}
+                  fontSize="10" fill="#fff" textAnchor="middle" fontWeight="600">
+                  {REL_LIKERT_NAMES[vi]} ({n.count})
+                </text>
+              )}
+            </g>
+          )))}
+          {stages.map((s, si) => (
+            <text key={"s"+si} x={si*(colW+gapX) + colW/2} y="18"
+              fontSize="11" fill="#1a1a2e" textAnchor="middle" fontWeight="700">
+              {s[0]} — {s[1]}
+            </text>
+          ))}
+        </svg>
+      </div>
+      <div style={{fontSize:11,color:"#9898aa",marginTop:10,textAlign:"center"}}>
+        Each ribbon = group of respondents flowing from one answer to the next. Hover for counts.
+      </div>
+    </div>
+  );
+}
+
+/* 4. NETWORK GRAPH */
+function CorrelationNetwork({ data, questions = ALL_LIKERT_QUESTIONS, threshold = 0.4 }) {
+  const edges = useMemo(() => {
+    const out = [];
+    for (let i = 0; i < questions.length; i++) {
+      for (let j = i+1; j < questions.length; j++) {
+        const { r } = pearson(data.map(rw=>rw[questions[i][2]]), data.map(rw=>rw[questions[j][2]]));
+        if (Math.abs(r) >= threshold) out.push({ a:i, b:j, r });
+      }
+    }
+    return out;
+  }, [data, questions, threshold]);
+
+  const degree = questions.map((_, i) => edges.filter(e => e.a===i || e.b===i).length);
+
+  const W = 640, H = 520, cx = W/2, cy = H/2, R = 220;
+  const nodes = questions.map(([code,, , sec], i) => {
+    const ang = (i / questions.length) * 2 * Math.PI - Math.PI/2;
+    return {
+      code, sec,
+      x: cx + R * Math.cos(ang),
+      y: cy + R * Math.sin(ang),
+      ang
+    };
+  });
+
+  const [hover, setHover] = useState(null);
+
+  return (
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:10}}>
+        <div style={{fontSize:11,color:"#5a5a72"}}>
+          Showing <span style={{fontWeight:700,color:"#2d6a4f"}}>{edges.length}</span> connections with |r| ≥ {threshold}
+        </div>
+        <div style={{display:"flex",gap:14,fontSize:10,color:"#5a5a72",flexWrap:"wrap"}}>
+          {Object.entries(SECTION_COLOR).map(([s,c]) => (
+            <div key={s} style={{display:"flex",alignItems:"center",gap:5}}>
+              <div style={{width:10,height:10,borderRadius:"50%",background:c}}/>§{s}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{background:"#faf8f3",border:"1px solid #f0ebe0",borderRadius:10,padding:12,position:"relative"}}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",height:"auto",fontFamily:"DM Sans, sans-serif"}}>
+          {edges.map((e, idx) => {
+            const isHover = hover && (hover === e.a || hover === e.b);
+            const fade = hover !== null && !isHover;
+            return (
+              <line key={idx}
+                x1={nodes[e.a].x} y1={nodes[e.a].y}
+                x2={nodes[e.b].x} y2={nodes[e.b].y}
+                stroke={e.r >= 0 ? "#2d6a4f" : "#c0392b"}
+                strokeOpacity={fade ? 0.05 : Math.min(0.7, Math.abs(e.r))}
+                strokeWidth={Math.max(0.6, Math.abs(e.r) * 3.5)}
+              />
+            );
+          })}
+          {nodes.map((n, i) => {
+            const r = 8 + Math.min(degree[i], 14) * 1.1;
+            const isHover = hover === i;
+            const labelX = cx + (R + 30) * Math.cos(n.ang);
+            const labelY = cy + (R + 30) * Math.sin(n.ang);
+            return (
+              <g key={i}
+                onMouseEnter={() => setHover(i)}
+                onMouseLeave={() => setHover(null)}
+                style={{cursor:"pointer"}}>
+                <circle cx={n.x} cy={n.y} r={r}
+                  fill={SECTION_COLOR[n.sec] || "#5a5a72"}
+                  stroke={isHover ? "#1a1a2e" : "#fff"}
+                  strokeWidth={isHover ? 2.5 : 1.5}/>
+                <text x={labelX} y={labelY}
+                  fontSize="9.5" fill="#1a1a2e"
+                  textAnchor={Math.cos(n.ang) > 0.1 ? "start" : Math.cos(n.ang) < -0.1 ? "end" : "middle"}
+                  dominantBaseline="middle"
+                  fontWeight={isHover ? "700" : "500"}>
+                  {n.code}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+        {hover !== null && (
+          <div style={{position:"absolute",top:12,left:12,background:"#1a1a2e",color:"#fff",padding:"8px 12px",borderRadius:8,fontSize:11,maxWidth:260}}>
+            <div style={{fontWeight:700,marginBottom:4}}>{questions[hover][0]} — {questions[hover][1]}</div>
+            <div style={{color:"#9898aa"}}>
+              {degree[hover]} strong connection{degree[hover]!==1?"s":""}
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{fontSize:11,color:"#9898aa",marginTop:10,textAlign:"center"}}>
+        Line thickness = strength · Green = positive correlation · Red = negative · Node size = number of strong links
+      </div>
+    </div>
+  );
+}
+
+/* 5. TOP CORRELATIONS — small embeddable card */
+function TopCorrelations({ data, sectionKey, limit = 6 }) {
+  const inSection = ALL_LIKERT_QUESTIONS.filter(q => q[3] === sectionKey);
+
+  const ranked = useMemo(() => {
+    if (inSection.length === 0) return [];
+    const all = [];
+    inSection.forEach(qa => {
+      ALL_LIKERT_QUESTIONS.forEach(qb => {
+        if (qa[2] === qb[2]) return;
+        const { r, n } = pearson(data.map(r=>r[qa[2]]), data.map(r=>r[qb[2]]));
+        if (n >= 5 && Math.abs(r) >= 0.25) all.push({ qa, qb, r, n });
+      });
+    });
+    const seen = new Set();
+    const dedup = [];
+    all.sort((x,y) => Math.abs(y.r) - Math.abs(x.r))
+       .forEach(item => {
+         const key = [item.qa[2], item.qb[2]].sort().join("|");
+         if (seen.has(key)) return;
+         seen.add(key);
+         dedup.push(item);
+       });
+    return dedup.slice(0, limit);
+  }, [data, sectionKey, limit, inSection]);
+
+  if (inSection.length === 0) return null;
+
+  if (ranked.length === 0) {
+    return (
+      <div style={{fontSize:12,color:"#9898aa",textAlign:"center",padding:20}}>
+        Not enough data yet for relationship analysis.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+      {ranked.map((it, i) => (
+        <div key={i} style={{
+          display:"flex",alignItems:"center",gap:12,padding:"10px 12px",
+          background:"#faf8f3",border:"1px solid #f0ebe0",borderRadius:10
+        }}>
+          <div style={{
+            minWidth:54,height:54,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",
+            flexDirection:"column",
+            background: it.r >= 0 ? "#e8f4ef" : "#fbe6e3",
+            border:`1.5px solid ${it.r >= 0 ? "#2d6a4f" : "#c0392b"}`,
+          }}>
+            <div style={{fontFamily:"Playfair Display, serif",fontSize:16,fontWeight:700,color:it.r>=0?"#2d6a4f":"#c0392b"}}>
+              {it.r >= 0 ? "+" : ""}{it.r.toFixed(2)}
+            </div>
+            <div style={{fontSize:8,color:"#9898aa"}}>n={it.n}</div>
+          </div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,color:"#1a1a2e",fontWeight:600,lineHeight:1.4}}>
+              <span style={{color:SECTION_COLOR[it.qa[3]]}}>{it.qa[0]}</span> {it.qa[1]}
+            </div>
+            <div style={{fontSize:10,color:"#9898aa",margin:"2px 0"}}>
+              {it.r >= 0 ? "moves with ↗" : "moves opposite ↘"}
+            </div>
+            <div style={{fontSize:11,color:"#1a1a2e",fontWeight:600,lineHeight:1.4}}>
+              <span style={{color:SECTION_COLOR[it.qb[3]]}}>{it.qb[0]}</span> {it.qb[1]}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* 6. SECTION REL — full page combining all four */
+function SectionRel({ data }) {
+  const [tab, setTab] = useState("heatmap");
+
+  const tabs = [
+    { id:"heatmap",  label:"Correlation Heatmap",   icon:"🔥" },
+    { id:"picker",   label:"Question vs Question",  icon:"⚖️" },
+    { id:"sankey",   label:"Answer Flow (Sankey)",  icon:"🌊" },
+    { id:"network",  label:"Network of Links",      icon:"🕸️" },
+  ];
+
+  return (
+    <div>
+      <div className="an-chart-block" style={{marginBottom:20,background:"linear-gradient(135deg,#e8f4ef 0%,#fff 100%)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{fontSize:30}}>🔗</div>
+          <div>
+            <div style={{fontFamily:"Playfair Display, serif",fontSize:18,fontWeight:700,color:"#1a1a2e"}}>
+              Question Relationships
+            </div>
+            <div style={{fontSize:12,color:"#5a5a72",marginTop:3}}>
+              Discover how every question relates to every other question — patterns, agreement, opposition, and respondent flow.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{display:"flex",gap:6,marginBottom:18,flexWrap:"wrap"}}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{
+              padding:"10px 16px",
+              border: tab===t.id ? "1px solid #2d6a4f" : "1px solid #e0dbd0",
+              background: tab===t.id ? "#2d6a4f" : "#fff",
+              color: tab===t.id ? "#fff" : "#1a1a2e",
+              borderRadius:8, fontSize:12, fontWeight:600, cursor:"pointer",
+              fontFamily:"DM Sans, sans-serif",
+              transition:"all 0.18s",
+              boxShadow:"0 2px 6px rgba(0,0,0,0.04)"
+            }}>
+            <span style={{marginRight:6}}>{t.icon}</span>{t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="an-chart-block">
+        {tab === "heatmap" && (<>
+          <div className="an-chart-title">Pearson Correlation Heatmap — All Likert Questions</div>
+          <CorrelationHeatmap data={data} />
+        </>)}
+        {tab === "picker" && (<>
+          <div className="an-chart-title">Compare Two Questions Side-by-Side</div>
+          <QuestionVsQuestion data={data} />
+        </>)}
+        {tab === "sankey" && (<>
+          <div className="an-chart-title">Respondent Answer Flow Across 3 Questions</div>
+          <SankeyFlow data={data} />
+        </>)}
+        {tab === "network" && (<>
+          <div className="an-chart-title">Network of Strongest Question Relationships</div>
+          <CorrelationNetwork data={data} />
+        </>)}
       </div>
     </div>
   );
@@ -885,9 +1596,40 @@ const SECTIONS = [
   { id:"F", label:"§F Preferred Medium of Instruction — Middle Level (Grades 6–8)",   icon:"📖", desc:"Preferred medium at middle level" },
   { id:"G", label:"§G Preferred Medium of Instruction — Matriculation Level (Grades 9–10)", icon:"🎓", desc:"Preferred medium at matriculation level" },
   { id:"H", label:"§H Medium of Instruction and Dropout Ratio",                        icon:"📉", desc:"Language-related dropout and retention analysis" },
+  { id:"REL", label:"§🔗 Question Relationships",                                       icon:"🔗", desc:"Heatmap · Q-vs-Q picker · Sankey flow · Network graph" },
 ];
 
-const SECTION_COMPONENTS = { A:SectionA, B:SectionB, C:SectionC, D:SectionD, E:SectionE, F:SectionF, G:SectionG, H:SectionH };
+/* Wrap each section so the user automatically sees a "Top Relationships"
+   card at the bottom of every section (except A which has no Likert qs). */
+function withRelationships(Comp, sectionKey) {
+  return function Wrapped({ data }) {
+    return (
+      <>
+        <Comp data={data} />
+        {sectionKey !== "A" && (
+          <div className="an-chart-block" style={{marginTop:28}}>
+            <div className="an-chart-title">
+              🔗 Top Relationships — how Section {sectionKey} questions connect to other questions
+            </div>
+            <TopCorrelations data={data} sectionKey={sectionKey} />
+          </div>
+        )}
+      </>
+    );
+  };
+}
+
+const SECTION_COMPONENTS = {
+  A:   withRelationships(SectionA, "A"),
+  B:   withRelationships(SectionB, "B"),
+  C:   withRelationships(SectionC, "C"),
+  D:   withRelationships(SectionD, "D"),
+  E:   withRelationships(SectionE, "E"),
+  F:   withRelationships(SectionF, "F"),
+  G:   withRelationships(SectionG, "G"),
+  H:   withRelationships(SectionH, "H"),
+  REL: SectionRel,
+};
 
 /* ══════════════════════ MAIN ════════════════════════════════════════ */
 export default function AnalyticsPage({ onBack }) {
