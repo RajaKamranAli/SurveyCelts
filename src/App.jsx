@@ -10,11 +10,12 @@ import SurveyPage2 from "./pages/SurveyPage2.jsx";
 import SuccessPage from "./pages/SuccessPage.jsx";
 
 const VIEWS = {
-  DASHBOARD: "dashboard",
-  PAGE1:     "page1",
-  PAGE2:     "page2",
-  SUCCESS:   "success",
-  ANALYTICS: "analytics",
+  DASHBOARD:   "dashboard",
+  PAGE1:       "page1",
+  PAGE2:       "page2",
+  SUCCESS:     "success",
+  ANALYTICS:   "analytics",
+  ALL_SURVEYS: "allSurveys",
 };
 
 export default function App() {
@@ -63,8 +64,12 @@ export default function App() {
     <div>
       <Header />
 
-      {view === VIEWS.DASHBOARD && (
-        <Dashboard onStart={handleStart} onAnalytics={() => setView(VIEWS.ANALYTICS)} />
+     {view === VIEWS.DASHBOARD && (
+        <Dashboard
+          onStart={handleStart}
+          onAnalytics={() => setView(VIEWS.ANALYTICS)}
+          onViewSurveys={() => setView(VIEWS.ALL_SURVEYS)}
+        />
       )}
 
       {view === VIEWS.PAGE1 && (
@@ -94,7 +99,10 @@ export default function App() {
         />
       )}
 
-      {view === VIEWS.ANALYTICS && (
+   {view === VIEWS.ANALYTICS && (
+        <AnalyticsPage onBack={() => setView(VIEWS.DASHBOARD)} />
+      )}
+      {view === VIEWS.ALL_SURVEYS && (
         <AnalyticsPage onBack={() => setView(VIEWS.DASHBOARD)} />
       )}
     </div>
