@@ -732,11 +732,11 @@ const keys = [
             <form onSubmit={handleLoginSubmit} style={{marginTop:"24px",display:"flex",flexDirection:"column",gap:"16px"}}>
               <div>
                 <label style={{fontSize:"12px",fontWeight:"600",color:"#4a5468",display:"block",marginBottom:"6px"}}>Username</label>
-                <input name="username" defaultValue="GhulamAdmin" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
+<input name="username" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
               </div>
               <div>
                 <label style={{fontSize:"12px",fontWeight:"600",color:"#4a5468",display:"block",marginBottom:"6px"}}>Password</label>
-                <input name="password" type="password" defaultValue="Ghulam@123" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
+<input name="password" type="password" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
               </div>
               {loginError && <div style={{color:"#c0392b",fontSize:"13px",fontWeight:"600"}}>{loginError}</div>}
               <button type="submit" className="db-btn-gold" style={{width:"100%",justifyContent:"center",marginTop:"4px"}}>🔐 Login to Analytics</button>
