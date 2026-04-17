@@ -506,6 +506,8 @@ export default function Dashboard({ onStart, onAnalytics }) {
   const [surveys,  setSurveys]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [selected, setSelected] = useState(null);
+  const [loginVisible, setLoginVisible] = useState(false);
+  const [loginError,   setLoginError]   = useState("");
 
   useEffect(() => {
     injectStyles();
@@ -528,6 +530,24 @@ export default function Dashboard({ onStart, onAnalytics }) {
     { icon:"📋", val:8,             lbl:"Survey Sections",   color:"#5a5a72", chip:"Fixed",       chipBg:"rgba(90,90,114,0.08)",  chipClr:"#5a5a72", topbar:"linear-gradient(90deg,#5a5a72,#9898aa)" },
     { icon:"🌍", val:6,              lbl:"Provinces Covered", color:"#9b4444", chip:"PK",          chipBg:"rgba(155,68,68,0.08)",  chipClr:"#9b4444", topbar:"linear-gradient(90deg,#9b4444,#e07070)" },
   ];
+
+  // CSV export with new fields
+const handleAnalyticsClick = () => {
+    setLoginVisible(true);
+    setLoginError("");
+  };
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    const u = e.target.username.value;
+    const p = e.target.password.value;
+    if (u === "GhulamAdmin" && p === "Ghulam@123") {
+      setLoginVisible(false);
+      onAnalytics();
+    } else {
+      setLoginError("Invalid username or password.");
+    }
+  };
 
   // CSV export with new fields
   const handleExport = () => {
@@ -638,7 +658,7 @@ const keys = [
         {/* Actions */}
         <div className="db-actions">
           <button className="db-btn-primary" onClick={onStart}>✦ Start New Survey</button>
-          <button className="db-btn-gold" onClick={onAnalytics}>📊 View Analytics</button>
+          <button className="db-btn-gold" onClick={handleAnalyticsClick}>📊 View Analytics</button>
           <button className="db-btn-ghost" onClick={handleExport}>📥 Export CSV</button>
         </div>
 
@@ -696,6 +716,34 @@ const keys = [
           <div className="db-credit-mark">CeLTS</div>
         </div>
       </div>
+
+      {/* Modal */}
+     {/* Login Popup */}
+      {loginVisible && (
+        <div className="db-overlay" onClick={() => setLoginVisible(false)}>
+          <div className="db-modal" onClick={e => e.stopPropagation()} style={{maxWidth:"380px",padding:"36px 32px"}}>
+            <div className="db-modal-hdr">
+              <div>
+                <div className="db-modal-id">Admin Access</div>
+                <div className="db-modal-title">Analytics Login</div>
+              </div>
+              <button className="db-modal-x" onClick={() => setLoginVisible(false)}>×</button>
+            </div>
+            <form onSubmit={handleLoginSubmit} style={{marginTop:"24px",display:"flex",flexDirection:"column",gap:"16px"}}>
+              <div>
+                <label style={{fontSize:"12px",fontWeight:"600",color:"#4a5468",display:"block",marginBottom:"6px"}}>Username</label>
+                <input name="username" defaultValue="GhulamAdmin" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
+              </div>
+              <div>
+                <label style={{fontSize:"12px",fontWeight:"600",color:"#4a5468",display:"block",marginBottom:"6px"}}>Password</label>
+                <input name="password" type="password" defaultValue="Ghulam@123" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
+              </div>
+              {loginError && <div style={{color:"#c0392b",fontSize:"13px",fontWeight:"600"}}>{loginError}</div>}
+              <button type="submit" className="db-btn-gold" style={{width:"100%",justifyContent:"center",marginTop:"4px"}}>🔐 Login to Analytics</button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {selected && (
