@@ -672,7 +672,6 @@ const keys = [
           <button className="db-btn-primary" onClick={onStart}>✦ Start New Survey</button>
           <button className="db-btn-gold" onClick={handleAnalyticsClick}>📊 View Analytics</button>
           <button className="db-btn-gold" onClick={handleSurveysClick}>📋 View All Surveys</button>
-          <button className="db-btn-ghost" onClick={handleExport}>📥 Export CSV</button>
         </div>
 
         {/* Table header */}
