@@ -502,12 +502,13 @@ function AnimatedNum({ target }) {
 }
 
 /* ══════════════════════ MAIN ════════════════════════════════════════ */
-export default function Dashboard({ onStart, onAnalytics }) {
+export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
   const [surveys,  setSurveys]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [selected, setSelected] = useState(null);
   const [loginVisible, setLoginVisible] = useState(false);
   const [loginError,   setLoginError]   = useState("");
+  const [loginTarget,  setLoginTarget]  = useState("analytics");
 
   useEffect(() => {
     injectStyles();
@@ -533,6 +534,13 @@ export default function Dashboard({ onStart, onAnalytics }) {
 
   // CSV export with new fields
 const handleAnalyticsClick = () => {
+    setLoginTarget("analytics");
+    setLoginVisible(true);
+    setLoginError("");
+  };
+
+  const handleSurveysClick = () => {
+    setLoginTarget("surveys");
     setLoginVisible(true);
     setLoginError("");
   };
@@ -543,7 +551,11 @@ const handleAnalyticsClick = () => {
     const p = e.target.password.value;
     if (u === "GhulamAdmin" && p === "Ghulam@123") {
       setLoginVisible(false);
-      onAnalytics();
+      if (loginTarget === "analytics") {
+        onAnalytics();
+      } else {
+        onViewSurveys();
+      }
     } else {
       setLoginError("Invalid username or password.");
     }
@@ -656,9 +668,10 @@ const keys = [
         </div>
 
         {/* Actions */}
-        <div className="db-actions">
+       <div className="db-actions">
           <button className="db-btn-primary" onClick={onStart}>✦ Start New Survey</button>
           <button className="db-btn-gold" onClick={handleAnalyticsClick}>📊 View Analytics</button>
+          <button className="db-btn-gold" onClick={handleSurveysClick}>📋 View All Surveys</button>
           <button className="db-btn-ghost" onClick={handleExport}>📥 Export CSV</button>
         </div>
 
