@@ -677,48 +677,11 @@ const keys = [
 
         {/* Table header */}
         <div className="db-sec-hd">
-          <div className="db-sec-hd-lbl">Recent Submissions</div>
-          <div className="db-sec-hd-line"/>
-          <div className="db-sec-hd-count">{surveys.length} records</div>
+
         </div>
 
         {/* Table */}
-        <div className="db-table">
-          <div className="db-thead">
-            <span>#</span>
-            <span>Category</span>
-            <span>Area</span>
-            <span>Institution</span>
-            <span>Province</span>
-            <span>Status</span>
-          </div>
-          {loading ? (
-            <div className="db-empty">
-              <div className="db-empty-icon">⏳</div>
-              <div className="db-empty-title">Loading data…</div>
-            </div>
-          ) : surveys.length === 0 ? (
-            <div className="db-empty">
-              <div className="db-empty-icon">📋</div>
-              <div className="db-empty-title">No responses yet</div>
-              <div className="db-empty-desc">Press "Start New Survey" to begin.</div>
-            </div>
-          ) : surveys.map((s,i) => (
-            <div
-              className="db-row"
-              key={s.responseId ?? s.dpId ?? i}
-              onClick={() => setSelected(s)}
-              style={{animationDelay:`${i*0.03}s`}}
-            >
-              <div className="db-row-num">{i+1}</div>
-              <div className="db-row-cat">{s.respondentCategory || "—"}</div>
-              <div className="db-row-cell">{s.area || "—"}</div>
-              <div className="db-row-cell">{s.institutionType || "—"}</div>
-              <div className="db-row-cell">{s.province || "—"}</div>
-              <div><span className="db-badge-done">✓ Done</span></div>
-            </div>
-          ))}
-        </div>
+       
 
         {/* Credit */}
         <div className="db-credit">
