@@ -2,6 +2,7 @@ import { useState } from "react";
 import { submitSurvey } from "./api/surveyApi";
 import "./styles.css";
 import AnalyticsPage from "./pages/AnalyticsPage.jsx";
+import AllSurveysPage from "./pages/AllSurveysPage.jsx";
 
 import Header      from "./components/Header.jsx";
 import Dashboard   from "./pages/Dashboard.jsx";
@@ -102,8 +103,8 @@ export default function App() {
    {view === VIEWS.ANALYTICS && (
         <AnalyticsPage onBack={() => setView(VIEWS.DASHBOARD)} />
       )}
-      {view === VIEWS.ALL_SURVEYS && (
-        <AnalyticsPage onBack={() => setView(VIEWS.DASHBOARD)} />
+     {view === VIEWS.ALL_SURVEYS && (
+        <AllSurveysPage onBack={() => setView(VIEWS.DASHBOARD)} />
       )}
     </div>
   );
