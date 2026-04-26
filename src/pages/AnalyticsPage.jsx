@@ -124,6 +124,87 @@ const injectStyles = () => {
     .an-stat-mini-pct { font-size:12px; color:#9898aa; margin-top:2px; }
     .an-stat-mini-lbl { font-size:11px; color:#5a5a72; margin-top:4px; font-weight:500; }
 
+    /* 3D educational tables */
+    .an-chart-block,
+    .an-total-badge,
+    .an-sec-card,
+    .an-stat-mini,
+    .an-table-shell {
+      transform-style:preserve-3d;
+      backface-visibility:hidden;
+    }
+    .an-chart-block {
+      background:linear-gradient(145deg,#ffffff 0%,#fffdf8 64%,#f3ead8 100%);
+      box-shadow:0 18px 38px rgba(26,58,46,0.10), 0 4px 0 rgba(45,106,79,0.06);
+      transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+    .an-chart-block:hover {
+      transform:perspective(1000px) rotateX(0.8deg) translateY(-2px);
+      border-color:rgba(45,106,79,0.28);
+      box-shadow:0 26px 54px rgba(26,58,46,0.16), 0 7px 0 rgba(45,106,79,0.08);
+    }
+    .an-sec-card {
+      background:linear-gradient(145deg,#ffffff 0%,#fffaf0 100%);
+      box-shadow:0 16px 32px rgba(26,58,46,0.10), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .an-sec-card:hover {
+      transform:perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-6px);
+    }
+    .an-table-shell {
+      margin-top:28px;
+      border:1px solid rgba(45,106,79,0.18);
+      border-radius:16px;
+      background:linear-gradient(145deg,#ffffff 0%,#fffbf4 54%,#edf8f2 100%);
+      box-shadow:0 22px 44px rgba(26,58,46,0.13), inset 0 1px 0 rgba(255,255,255,0.92);
+      overflow:hidden;
+    }
+    .an-table-top {
+      display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+      padding:18px 20px;
+      background:linear-gradient(135deg,#1a3a2e 0%,#2d6a4f 52%,#b5860d 100%);
+      color:#fff;
+      position:relative;
+      overflow:hidden;
+    }
+    .an-table-top::after {
+      content:''; position:absolute; inset:-55% auto auto -10%; width:70%; height:200%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
+      transform:rotate(18deg);
+      animation:anShine 6s ease-in-out infinite;
+    }
+    @keyframes anShine { 0%,55%{left:-80%;} 100%{left:120%;} }
+    .an-table-title { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; position:relative; z-index:1; }
+    .an-table-note { font-size:11px; opacity:0.86; margin-top:4px; position:relative; z-index:1; }
+    .an-table-badge { position:relative; z-index:1; background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.28); border-radius:999px; padding:7px 12px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .an-table-scroll { overflow:auto; max-height:680px; }
+    .an-table { width:100%; min-width:980px; border-collapse:separate; border-spacing:0; font-size:12px; }
+    .an-table th {
+      position:sticky; top:0; z-index:2;
+      background:#f6f0e4; color:#1a3a2e; text-align:center;
+      padding:12px 10px; border-bottom:1px solid #dfd3bf; font-size:10px;
+      text-transform:uppercase; letter-spacing:0.08em;
+    }
+    .an-table th:first-child { text-align:left; }
+    .an-table td { padding:12px 10px; border-bottom:1px solid #f0ebe0; color:#2d2d44; vertical-align:middle; }
+    .an-table tbody tr { transition:transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
+    .an-table tbody tr:hover { background:#fff9ec; transform:scale(1.006); box-shadow:0 10px 22px rgba(45,106,79,0.10); }
+    .an-qtext { min-width:310px; font-weight:600; line-height:1.45; color:#1a1a2e; }
+    .an-qnum { display:inline-flex; align-items:center; justify-content:center; min-width:44px; margin-right:8px; border-radius:999px; padding:4px 8px; background:#e8f4ef; color:#2d6a4f; font-size:10px; font-weight:800; }
+    .an-count-cell { text-align:center; font-weight:700; min-width:86px; }
+    .an-count-pill { display:inline-flex; min-width:34px; height:28px; align-items:center; justify-content:center; border-radius:10px; color:#fff; box-shadow:0 7px 14px rgba(0,0,0,0.12); }
+    .an-lk-1 { background:#a93226; } .an-lk-2 { background:#e07070; } .an-lk-3 { background:#8f8a80; } .an-lk-4 { background:#52b98f; } .an-lk-5 { background:#196f53; }
+    .an-mean { font-family:'Playfair Display',serif; color:#2d6a4f; font-size:16px; }
+    .an-agree-wrap { min-width:118px; }
+    .an-agree-num { font-weight:800; color:#1a6b50; margin-bottom:5px; text-align:center; }
+    .an-mini-track { height:8px; background:#eee3d2; border-radius:999px; overflow:hidden; box-shadow:inset 0 1px 3px rgba(0,0,0,0.08); }
+    .an-mini-fill { height:100%; background:linear-gradient(90deg,#74c69d,#2d6a4f); border-radius:999px; transition:width 0.7s ease; }
+    .an-insight-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px 20px; background:rgba(232,244,239,0.55); border-bottom:1px solid #e0dbd0; }
+    .an-insight-card { background:rgba(255,255,255,0.86); border:1px solid #e0dbd0; border-radius:12px; padding:12px; box-shadow:0 10px 22px rgba(26,58,46,0.08); }
+    .an-insight-k { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:#8a836f; font-weight:800; }
+    .an-insight-v { margin-top:5px; font-size:13px; color:#1a1a2e; font-weight:700; line-height:1.35; }
+    .an-option-table { min-width:560px; }
+    .an-option-name { font-weight:700; color:#1a1a2e; }
+
     /* Loading / empty */
     .an-loading { text-align:center; padding:80px 20px; color:#9898aa; font-size:15px; }
     .an-empty   { text-align:center; padding:80px 20px; color:#9898aa; }
@@ -135,6 +216,8 @@ const injectStyles = () => {
       .an-chart-grid-2 { grid-template-columns:1fr; }
       .an-chart-grid-3 { grid-template-columns:1fr; }
       .an-stat-row { grid-template-columns:1fr 1fr; }
+      .an-insight-grid { grid-template-columns:1fr; padding:12px; }
+      .an-table-top { flex-direction:column; }
       .an-inner { padding:20px 16px 60px; }
     }
   `;
@@ -158,6 +241,178 @@ function countFixed(data, key, options) {
     label: opt,
     value: data.filter(r => String(r[key]) === opt).length,
   }));
+}
+
+function pct(value, total) {
+  return total > 0 ? Math.round((value / total) * 100) : 0;
+}
+
+function splitQuestionLabel(label) {
+  const match = String(label).match(/^(Q\d+)\s+—\s+(.+)$/);
+  return match ? { number: match[1], text: match[2] } : { number: "Q", text: label };
+}
+
+function getLikertCounts(data, key) {
+  const counts = LIKERT_LABELS.map(l => data.filter(r => String(r[key]) === l).length);
+  const answered = counts.reduce((a,b) => a + b, 0);
+  const weighted = counts.reduce((sum, c, i) => sum + c * (i + 1), 0);
+  return {
+    counts,
+    answered,
+    mean: answered ? (weighted / answered).toFixed(2) : "—",
+    agree: counts[3] + counts[4],
+    disagree: counts[0] + counts[1],
+  };
+}
+
+function SectionInsights({ questions, data }) {
+  const rows = questions.map(([label, key]) => {
+    const stats = getLikertCounts(data, key);
+    return { label, key, ...stats, agreePct: pct(stats.agree, stats.answered), disagreePct: pct(stats.disagree, stats.answered) };
+  }).filter(r => r.answered > 0);
+
+  if (!rows.length) return null;
+  const strongestAgree = [...rows].sort((a,b) => b.agreePct - a.agreePct)[0];
+  const strongestDisagree = [...rows].sort((a,b) => b.disagreePct - a.disagreePct)[0];
+  const highestMean = [...rows].sort((a,b) => Number(b.mean) - Number(a.mean))[0];
+  const short = (label) => splitQuestionLabel(label).text.slice(0, 78);
+
+  return (
+    <div className="an-insight-grid">
+      <div className="an-insight-card">
+        <div className="an-insight-k">Highest Agreement</div>
+        <div className="an-insight-v">{strongestAgree.agreePct}% · {short(strongestAgree.label)}</div>
+      </div>
+      <div className="an-insight-card">
+        <div className="an-insight-k">Highest Disagreement</div>
+        <div className="an-insight-v">{strongestDisagree.disagreePct}% · {short(strongestDisagree.label)}</div>
+      </div>
+      <div className="an-insight-card">
+        <div className="an-insight-k">Highest Mean Score</div>
+        <div className="an-insight-v">μ = {highestMean.mean} · {short(highestMean.label)}</div>
+      </div>
+    </div>
+  );
+}
+
+function QuestionCountTable({ title, questions, data, note = "Agreement = Agree + Strongly Agree" }) {
+  return (
+    <div className="an-table-shell">
+      <div className="an-table-top">
+        <div>
+          <div className="an-table-title">{title}</div>
+          <div className="an-table-note">All relevant questions with exact response counts for each Likert option.</div>
+        </div>
+        <div className="an-table-badge">{note}</div>
+      </div>
+      <SectionInsights questions={questions} data={data} />
+      <div className="an-table-scroll">
+        <table className="an-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              {LIKERT_NAMES.map(name => <th key={name}>{name}</th>)}
+              <th>Total</th>
+              <th>Mean</th>
+              <th>Agreement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {questions.map(([label, key]) => {
+              const q = splitQuestionLabel(label);
+              const stats = getLikertCounts(data, key);
+              const agreePct = pct(stats.agree, stats.answered);
+              return (
+                <tr key={key}>
+                  <td className="an-qtext"><span className="an-qnum">{q.number}</span>{q.text}</td>
+                  {stats.counts.map((value, i) => (
+                    <td className="an-count-cell" key={LIKERT_LABELS[i]}>
+                      <span className={`an-count-pill an-lk-${i + 1}`}>{value}</span>
+                    </td>
+                  ))}
+                  <td className="an-count-cell">{stats.answered}</td>
+                  <td className="an-count-cell an-mean">{stats.mean}</td>
+                  <td className="an-agree-wrap">
+                    <div className="an-agree-num">{agreePct}%</div>
+                    <div className="an-mini-track"><div className="an-mini-fill" style={{width:`${agreePct}%`}} /></div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function OptionCountTable({ title, label, data, field, options }) {
+  const rows = (options || [...new Set(data.map(r => String(r[field] || "—")))]).map(opt => {
+    const value = data.filter(r => String(r[field] || "—") === String(opt)).length;
+    return { label: opt, value, pct: pct(value, data.length) };
+  }).sort((a,b) => b.value - a.value);
+
+  return (
+    <div className="an-table-shell">
+      <div className="an-table-top">
+        <div>
+          <div className="an-table-title">{title}</div>
+          <div className="an-table-note">{label}</div>
+        </div>
+        <div className="an-table-badge">Total responses: {data.length}</div>
+      </div>
+      <div className="an-table-scroll">
+        <table className="an-table an-option-table">
+          <thead><tr><th>Option</th><th>Count</th><th>Percentage</th><th>Visual Share</th></tr></thead>
+          <tbody>
+            {rows.map(row => (
+              <tr key={row.label}>
+                <td className="an-option-name">{row.label}</td>
+                <td className="an-count-cell"><span className="an-count-pill an-lk-5">{row.value}</span></td>
+                <td className="an-count-cell an-mean">{row.pct}%</td>
+                <td><div className="an-mini-track"><div className="an-mini-fill" style={{width:`${row.pct}%`}} /></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function MultiQuestionOptionTable({ title, questions, data }) {
+  return (
+    <div className="an-table-shell">
+      <div className="an-table-top">
+        <div>
+          <div className="an-table-title">{title}</div>
+          <div className="an-table-note">Multiple-choice question counts with percentage share.</div>
+        </div>
+        <div className="an-table-badge">Total responses: {data.length}</div>
+      </div>
+      <div className="an-table-scroll">
+        <table className="an-table">
+          <thead><tr><th>Question</th><th>Option</th><th>Count</th><th>Percentage</th><th>Visual Share</th></tr></thead>
+          <tbody>
+            {questions.flatMap(([label, key, options]) => options.map(opt => {
+              const value = data.filter(r => String(r[key]) === opt).length;
+              const share = pct(value, data.length);
+              const q = splitQuestionLabel(label);
+              return (
+                <tr key={`${key}-${opt}`}>
+                  <td className="an-qtext"><span className="an-qnum">{q.number}</span>{q.text}</td>
+                  <td className="an-option-name">{opt}</td>
+                  <td className="an-count-cell"><span className="an-count-pill an-lk-4">{value}</span></td>
+                  <td className="an-count-cell an-mean">{share}%</td>
+                  <td><div className="an-mini-track"><div className="an-mini-fill" style={{width:`${share}%`}} /></div></td>
+                </tr>
+              );
+            }))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 /* ══════════════════════ PIE CHART ══════════════════════════════════ */
@@ -1198,6 +1453,10 @@ function SectionA({ data }) {
           })}
         </div>
       </div>
+      <OptionCountTable title="Section A Table — Respondent Category" label="Background question: respondent category" data={data} field="respondentCategory" />
+      <OptionCountTable title="Section A Table — Institution Type" label="Background question: institution type" data={data} field="institutionType" />
+      <OptionCountTable title="Section A Table — Area" label="Background question: area" data={data} field="area" />
+      <OptionCountTable title="Section A Table — Province / Region" label="Background question: province or region" data={data} field="province" />
     </div>
   );
 }
@@ -1245,6 +1504,7 @@ function SectionB({ data }) {
           ))}
         </div>
       </div>
+      <QuestionCountTable title="Section B Table — All Questions Response Counts" questions={QUESTIONS} data={data} />
     </div>
   );
 }
@@ -1264,7 +1524,8 @@ function SectionC({ data }) {
         <div className="an-chart-title">Section C — Equity and Access (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
-      <div className="an-chart-grid-2">
+      <QuestionCountTable title="Section C Table — All Questions Response Counts" questions={QUESTIONS} data={data} />
+      <div className="an-chart-grid-2" style={{marginTop:28}}>
         <div className="an-chart-block">
           <div className="an-chart-title">Q13 — English Favors Elite (by Area)</div>
           <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
@@ -1315,7 +1576,8 @@ function SectionD({ data }) {
         <div className="an-chart-title">Section D — Teacher Capacity (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
-      <div className="an-chart-grid-2">
+      <QuestionCountTable title="Section D Table — All Questions Response Counts" questions={QUESTIONS} data={data} />
+      <div className="an-chart-grid-2" style={{marginTop:28}}>
         <div className="an-chart-block">
           <div className="an-chart-title">Q17 — Teachers Effective in English (by Institution Type)</div>
           <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
@@ -1366,8 +1628,9 @@ function SectionE({ data }) {
         <div className="an-chart-title">Section E — Preferred Medium of Instruction — Primary Level (Grades 1–5) (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
+      <QuestionCountTable title="Section E Table — All Questions Response Counts" questions={QUESTIONS} data={data} />
       {/* Compare Q22 vs Q24 side by side */}
-      <div className="an-chart-grid-2">
+      <div className="an-chart-grid-2" style={{marginTop:28}}>
         <div className="an-chart-block">
           <div className="an-chart-title">Q22 — Mother Tongue at Primary (by Province)</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
@@ -1419,7 +1682,8 @@ function SectionF({ data }) {
         <div className="an-chart-title">Section F — Preferred Medium of Instruction — Middle Level (Grades 6–8) (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
-      <div className="an-chart-grid-2">
+      <QuestionCountTable title="Section F Table — All Questions Response Counts" questions={QUESTIONS} data={data} />
+      <div className="an-chart-grid-2" style={{marginTop:28}}>
         <div className="an-chart-block">
           <div className="an-chart-title">Q28 — English at Middle Level (by Area)</div>
           <div style={{display:"flex",gap:14}}>
@@ -1471,7 +1735,8 @@ function SectionG({ data }) {
         <div className="an-chart-title">Section G — Preferred Medium of Instruction — Matriculation Level (Grades 9–10) (Likert breakdown)</div>
         <LikertGroup questions={QUESTIONS} data={data} />
       </div>
-      <div className="an-chart-grid-2">
+      <QuestionCountTable title="Section G Table — All Questions Response Counts" questions={QUESTIONS} data={data} />
+      <div className="an-chart-grid-2" style={{marginTop:28}}>
         <div className="an-chart-block">
           <div className="an-chart-title">Q32 — English at Matric (by Institution Type)</div>
           <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
@@ -1556,8 +1821,10 @@ function SectionH({ data }) {
         <LikertGroup questions={LIKERT_QS} data={data} />
       </div>
 
+      <QuestionCountTable title="Section H Table — Q38–Q49 Likert Response Counts" questions={LIKERT_QS} data={data} />
+
       {/* Multiple choice */}
-      <div className="an-chart-grid-3">
+      <div className="an-chart-grid-3" style={{marginTop:28}}>
         {MULTI_QS.map(([label, key, options]) => (
           <div className="an-chart-block" key={key}>
             <div className="an-chart-title">{label}</div>
@@ -1566,8 +1833,10 @@ function SectionH({ data }) {
         ))}
       </div>
 
+      <MultiQuestionOptionTable title="Section H Table — Q50–Q52 Multiple Choice Counts" questions={MULTI_QS} data={data} />
+
       {/* Q50 by Area cross-tab */}
-      <div className="an-chart-block">
+      <div className="an-chart-block" style={{marginTop:28}}>
         <div className="an-chart-title">Q50 — Dropout is Highest at (by Area)</div>
         <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
           {["Urban","Semi-Urban","Rural"].map(area => {
