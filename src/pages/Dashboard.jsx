@@ -1,406 +1,524 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // const API_GET = "http://survey.ruqqiasultanaclinic.com/api/UserTest/getallsurvey";
 const API_GET = "/api/UserTest/getallsurvey";
 
-/* ══════════════════════ GLOBAL STYLES ══════════════════════════════ */
+/* ══════════════════════ GLOBAL STYLES — 3D EDU THEME ══════════════════════ */
 const injectStyles = () => {
-  if (document.getElementById("dash-gov-styles")) return;
+  if (document.getElementById("dash-edu3d-styles")) return;
   const el = document.createElement("style");
-  el.id = "dash-gov-styles";
+  el.id = "dash-edu3d-styles";
   el.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
     :root {
-       --cream:     #dde4ec;
-      --cream-d:   #cdd6e0;
-      --cream-dd:  #bcc8d4;
-      --parchment: #d4dce6;
-      --sage:      #2d6a4f;
-      --sage-m:    #40916c;
-      --sage-l:    #74c69d;
-      --sage-xl:   #d8f3dc;
-       --ink:       #1a1f2e;
-      --ink-m:     #2d3444;
-      --ink-l:     #4a5468;
-      --ink-xl:    #7a8899;
-      --gold:      #b5860d;
-      --gold-l:    #e8b030;
-      --gold-xl:   #fef3c7;
-      --rust:      #9b4444;
-      --rust-l:    #e07070;
-      --white:     #ffffff;
-      --shadow-s:  0 2px 8px rgba(26,26,46,0.07);
-      --shadow-m:  0 6px 24px rgba(26,26,46,0.10);
-      --shadow-l:  0 16px 48px rgba(26,26,46,0.13);
+      /* Educational deep-space palette */
+      --bg-0:      #0b1020;
+      --bg-1:      #111a36;
+      --bg-2:      #1a2550;
+      --ink-0:     #f5f7ff;
+      --ink-1:     #c8d0ee;
+      --ink-2:     #8a97c4;
+      --ink-3:     #5b6796;
+
+      /* Accent — knowledge gold + chalk teal + ink violet */
+      --gold:      #f5b840;
+      --gold-2:    #ffd870;
+      --teal:      #4fd1c5;
+      --teal-2:    #7ef0e6;
+      --violet:    #8b6cf2;
+      --violet-2:  #b39bff;
+      --rose:      #ff7a90;
+
+      --glass:     rgba(255,255,255,0.06);
+      --glass-2:   rgba(255,255,255,0.10);
+      --stroke:    rgba(255,255,255,0.12);
+      --stroke-2:  rgba(255,255,255,0.22);
+
+      --grad-hero:  linear-gradient(135deg,#f5b840 0%,#ff7a90 45%,#8b6cf2 100%);
+      --grad-teal:  linear-gradient(135deg,#4fd1c5,#8b6cf2);
+      --grad-gold:  linear-gradient(135deg,#f5b840,#ff7a90);
+      --grad-card:  linear-gradient(160deg,rgba(255,255,255,0.10) 0%,rgba(255,255,255,0.02) 100%);
+
+      --shadow-glow: 0 20px 60px rgba(139,108,242,0.35), 0 8px 24px rgba(0,0,0,0.4);
+      --shadow-soft: 0 12px 40px rgba(0,0,0,0.45);
     }
 
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
-     .db-root {
+    /* ── ROOT ── */
+    .edu-root {
       min-height:100vh;
-      background: #dde4ec;
-            font-family:'DM Sans',sans-serif;
-      color: var(--ink);
+      background:
+        radial-gradient(ellipse 90% 60% at 15% 0%, rgba(139,108,242,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 85% 30%, rgba(79,209,197,0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 50% 100%, rgba(245,184,64,0.18) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 50%, var(--bg-0) 100%);
+      font-family:'Outfit',sans-serif;
+      color: var(--ink-0);
       position:relative;
       overflow-x:hidden;
+      perspective: 1600px;
     }
 
-    /* ── Background texture ── */
-    .db-bg {
-      position:fixed; inset:0; z-index:0; pointer-events:none;
+    /* ── ANIMATED EDU BACKGROUND ── */
+    .edu-bg { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+
+    /* Grid floor (chalkboard perspective) */
+    .edu-bg-grid {
+      position:absolute; inset:-20% -10% -40% -10%;
+      background-image:
+        linear-gradient(rgba(139,108,242,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,209,197,0.14) 1px, transparent 1px);
+      background-size: 70px 70px;
+      transform: perspective(800px) rotateX(60deg) translateY(20%);
+      transform-origin: center bottom;
+      mask-image: radial-gradient(ellipse 70% 70% at 50% 30%, #000 30%, transparent 80%);
+      animation: gridFlow 18s linear infinite;
     }
-     .db-bg-paper {
-      position:absolute; inset:0;
-      background:
-        radial-gradient(ellipse 80% 60% at 10% 10%, rgba(100,149,200,0.12) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 80% at 92% 90%, rgba(181,134,13,0.07) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,215,230,0.5) 0%, transparent 70%);
+    @keyframes gridFlow {
+      from { background-position: 0 0, 0 0; }
+      to   { background-position: 0 70px, 70px 0; }
     }
-    .db-bg-lines {
+
+    /* Stars / particles */
+    .edu-bg-stars {
       position:absolute; inset:0;
       background-image:
-        linear-gradient(rgba(45,106,79,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(45,106,79,0.04) 1px, transparent 1px);
-      background-size:60px 60px;
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.9), transparent 50%),
+        radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.7), transparent 50%),
+        radial-gradient(1.5px 1.5px at 35% 78%, rgba(245,184,64,0.9), transparent 50%),
+        radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.6), transparent 50%),
+        radial-gradient(1px 1px at 50% 12%, rgba(127,240,230,0.8), transparent 50%),
+        radial-gradient(1.5px 1.5px at 22% 55%, rgba(255,255,255,0.7), transparent 50%),
+        radial-gradient(1px 1px at 65% 60%, rgba(179,155,255,0.9), transparent 50%);
+      animation: twinkle 4s ease-in-out infinite;
     }
-    .db-watermark {
-      position:fixed; bottom:-60px; right:10px;
-      font-family:'Playfair Display',serif;
-      font-size:280px; font-weight:700; font-style:italic;
-      color:rgba(45,106,79,0.04);
-      pointer-events:none; z-index:0; user-select:none; line-height:1;
+    @keyframes twinkle {
+      0%,100% { opacity:0.7; }
+      50%     { opacity:1; }
     }
 
-    /* ── Top ribbon ── */
-    .db-ribbon {
-      height:5px;
-      background:linear-gradient(90deg,
-        var(--sage) 0%, var(--sage-m) 40%,
-        var(--gold) 70%, var(--gold-l) 100%);
+    /* Floating orbs */
+    .edu-orb {
+      position:absolute; border-radius:50%;
+      filter: blur(40px); opacity:0.55;
+      animation: orbFloat 14s ease-in-out infinite;
+    }
+    .edu-orb.o1 { width:380px; height:380px; left:-80px; top:8%;
+      background: radial-gradient(circle, var(--violet) 0%, transparent 70%); }
+    .edu-orb.o2 { width:320px; height:320px; right:-60px; top:42%;
+      background: radial-gradient(circle, var(--teal) 0%, transparent 70%);
+      animation-delay:-5s; }
+    .edu-orb.o3 { width:280px; height:280px; left:30%; bottom:-60px;
+      background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+      animation-delay:-9s; }
+    @keyframes orbFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%     { transform: translate(40px,-30px) scale(1.08); }
+      66%     { transform: translate(-30px,20px) scale(0.95); }
+    }
+
+    /* Floating 3D edu icons */
+    .edu-float {
+      position:absolute; font-size:42px;
+      opacity:0.18; filter: drop-shadow(0 8px 24px rgba(139,108,242,0.5));
+      animation: floatY 9s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+    .edu-float.f1 { top:14%;  left:8%;  animation-delay:0s;   }
+    .edu-float.f2 { top:22%;  right:10%; animation-delay:-2s; font-size:48px; }
+    .edu-float.f3 { top:55%;  left:5%;   animation-delay:-4s; }
+    .edu-float.f4 { top:68%;  right:7%;  animation-delay:-6s; font-size:38px; }
+    .edu-float.f5 { top:38%;  left:48%;  animation-delay:-3s; font-size:32px; opacity:0.12; }
+    .edu-float.f6 { top:80%;  left:32%;  animation-delay:-7s; }
+    @keyframes floatY {
+      0%,100% { transform: translateY(0) rotate(-6deg) rotateY(0deg); }
+      50%     { transform: translateY(-26px) rotate(6deg) rotateY(20deg); }
+    }
+
+    /* Geometric 3D shapes (cubes) */
+    .edu-cube {
+      position:absolute; width:60px; height:60px;
+      transform-style: preserve-3d;
+      animation: cubeSpin 16s linear infinite;
+    }
+    .edu-cube .face {
+      position:absolute; inset:0;
+      background: var(--grad-teal);
+      border:1px solid rgba(255,255,255,0.2);
+      opacity:0.35;
+    }
+    .edu-cube .f-front  { transform: translateZ(30px); }
+    .edu-cube .f-back   { transform: rotateY(180deg) translateZ(30px); }
+    .edu-cube .f-right  { transform: rotateY(90deg)  translateZ(30px); }
+    .edu-cube .f-left   { transform: rotateY(-90deg) translateZ(30px); }
+    .edu-cube .f-top    { transform: rotateX(90deg)  translateZ(30px); }
+    .edu-cube .f-bottom { transform: rotateX(-90deg) translateZ(30px); }
+    .edu-cube.c1 { top:18%; right:20%; }
+    .edu-cube.c2 { top:62%; left:18%;  width:46px; height:46px; animation-duration:22s; animation-direction:reverse; }
+    .edu-cube.c2 .face { transform: translateZ(23px); }
+    .edu-cube.c2 .f-back { transform: rotateY(180deg) translateZ(23px); }
+    .edu-cube.c2 .f-right { transform: rotateY(90deg) translateZ(23px); }
+    .edu-cube.c2 .f-left { transform: rotateY(-90deg) translateZ(23px); }
+    .edu-cube.c2 .f-top { transform: rotateX(90deg) translateZ(23px); }
+    .edu-cube.c2 .f-bottom { transform: rotateX(-90deg) translateZ(23px); }
+    @keyframes cubeSpin {
+      from { transform: rotateX(0deg) rotateY(0deg); }
+      to   { transform: rotateX(360deg) rotateY(360deg); }
+    }
+
+    /* Top ribbon (gradient laser line) */
+    .edu-ribbon {
+      height:3px;
+      background: linear-gradient(90deg, var(--teal) 0%, var(--violet) 50%, var(--gold) 100%);
       position:relative; z-index:2;
+      box-shadow: 0 0 24px rgba(139,108,242,0.6);
     }
 
-    /* ── Layout ── */
-    .db-inner {
+    /* Layout */
+    .edu-inner {
       position:relative; z-index:1;
-      max-width:1200px; margin:0 auto; padding:0 40px 80px;
+      max-width:1240px; margin:0 auto; padding:0 40px 80px;
     }
 
-    /* ── Nav ── */
-    .db-nav {
+    /* ── NAV ── */
+    .edu-nav {
       display:flex; align-items:center; justify-content:space-between;
-      padding:24px 0;
-      border-bottom:1px solid var(--cream-dd);
-      margin-bottom:52px;
-      animation:navSlide 0.7s ease both;
+      padding:26px 0;
+      margin-bottom:60px;
+      animation: navSlide 0.8s cubic-bezier(0.22,1,0.36,1) both;
     }
     @keyframes navSlide {
-      from { opacity:0; transform:translateY(-18px); }
-      to   { opacity:1; transform:translateY(0); }
+      from { opacity:0; transform: translateY(-22px); }
+      to   { opacity:1; transform: translateY(0); }
     }
-    .db-nav-left { display:flex; align-items:center; gap:16px; }
-    .db-nav-emblem {
-      width:52px; height:52px; border-radius:14px;
-      background:linear-gradient(140deg, var(--sage) 0%, var(--sage-m) 100%);
-      border:1px solid rgba(45,106,79,0.2);
+    .edu-nav-left { display:flex; align-items:center; gap:18px; }
+    .edu-nav-emblem {
+      width:60px; height:60px; border-radius:18px;
+      background: var(--grad-hero);
       display:flex; align-items:center; justify-content:center;
-      box-shadow: var(--shadow-m);
+      box-shadow: 0 10px 30px rgba(245,184,64,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
       flex-shrink:0;
+      transform-style: preserve-3d;
+      animation: emblemPulse 4s ease-in-out infinite;
     }
-    .db-nav-emblem-inner {
-      font-family:'Playfair Display',serif;
-      font-size:19px; font-weight:700; color:#fff; letter-spacing:-0.5px;
+    @keyframes emblemPulse {
+      0%,100% { transform: rotateY(0deg) scale(1); box-shadow: 0 10px 30px rgba(245,184,64,0.4), inset 0 1px 0 rgba(255,255,255,0.4); }
+      50%     { transform: rotateY(180deg) scale(1.05); box-shadow: 0 14px 40px rgba(139,108,242,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
     }
-    .db-nav-org {
-      font-size:11px; font-weight:600; letter-spacing:0.16em;
-      text-transform:uppercase; color:var(--sage); opacity:0.9;
+    .edu-nav-emblem-inner {
+      font-family:'Fraunces',serif;
+      font-size:22px; font-weight:700; color:#fff; letter-spacing:-1px;
+      backface-visibility: hidden;
     }
-    .db-nav-sub {
-      font-size:10px; color:var(--ink-xl); margin-top:2px; letter-spacing:0.05em;
+    .edu-nav-org {
+      font-size:11px; font-weight:700; letter-spacing:0.22em;
+      text-transform:uppercase;
+      background: var(--grad-teal);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
     }
-    .db-nav-right { text-align:right; }
-    .db-nav-live {
-      display:inline-flex; align-items:center; gap:6px;
-      font-size:11px; color:var(--sage-m); font-weight:600;
-      background:var(--sage-xl); border:1px solid rgba(45,106,79,0.2);
-      border-radius:100px; padding:5px 14px; margin-bottom:4px;
+    .edu-nav-sub { font-size:11px; color:var(--ink-2); margin-top:4px; letter-spacing:0.05em; }
+    .edu-nav-right { text-align:right; }
+    .edu-nav-live {
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:11px; color:var(--teal-2); font-weight:600;
+      background: rgba(79,209,197,0.10);
+      border:1px solid rgba(79,209,197,0.3);
+      border-radius:100px; padding:6px 16px; margin-bottom:6px;
+      backdrop-filter: blur(10px);
     }
-    .db-pulse {
-      width:7px; height:7px; border-radius:50%; background:var(--sage-m);
-      animation:livePulse 2s ease-in-out infinite;
+    .edu-pulse {
+      width:8px; height:8px; border-radius:50%; background: var(--teal);
+      box-shadow: 0 0 12px var(--teal);
+      animation: livePulse 2s ease-in-out infinite;
     }
     @keyframes livePulse {
-      0%,100% { box-shadow:0 0 0 0 rgba(64,145,108,0.5); }
-      50%      { box-shadow:0 0 0 6px rgba(64,145,108,0); }
+      0%,100% { box-shadow: 0 0 0 0 rgba(79,209,197,0.6), 0 0 12px var(--teal); }
+      50%     { box-shadow: 0 0 0 8px rgba(79,209,197,0), 0 0 20px var(--teal); }
     }
-    .db-nav-date { font-size:11px; color:var(--ink-xl); letter-spacing:0.05em; }
+    .edu-nav-date { font-size:11px; color:var(--ink-2); letter-spacing:0.05em; }
 
-    /* ── Hero ── */
-    .db-hero { margin-bottom:48px; animation:fadeUp 0.9s ease 0.1s both; }
+    /* ── HERO ── */
+    .edu-hero { margin-bottom:56px; animation: fadeUp 1s ease 0.1s both; transform-style: preserve-3d; }
     @keyframes fadeUp {
-      from { opacity:0; transform:translateY(28px); }
-      to   { opacity:1; transform:translateY(0); }
+      from { opacity:0; transform: translateY(36px); }
+      to   { opacity:1; transform: translateY(0); }
     }
-    .db-kicker {
+    .edu-kicker {
+      display:inline-flex; align-items:center; gap:12px;
+      font-size:10px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase;
+      color: var(--gold-2);
+      background: rgba(245,184,64,0.10);
+      border:1px solid rgba(245,184,64,0.3);
+      border-radius:100px; padding:8px 18px; margin-bottom:26px;
+      backdrop-filter: blur(10px);
+    }
+    .edu-kicker::before {
+      content:'✦'; color: var(--gold);
+    }
+    .edu-h1 {
+      font-family:'Fraunces',serif;
+      font-size:clamp(44px,6vw,82px);
+      font-weight:700; line-height:1.04;
+      color: var(--ink-0); letter-spacing:-2px; margin-bottom:22px;
+      text-shadow: 0 4px 30px rgba(139,108,242,0.25);
+    }
+    .edu-h1-line2 {
+      font-style:italic;
+      background: var(--grad-hero);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      filter: drop-shadow(0 4px 24px rgba(245,184,64,0.4));
+    }
+    .edu-desc {
+      font-size:15.5px; line-height:1.85; font-weight:300;
+      color: var(--ink-1); max-width:580px;
+    }
+    .edu-ornament {
+      display:flex; align-items:center; gap:18px; margin-top:32px;
+    }
+    .edu-orn-line  { height:1px; width:70px; background:linear-gradient(90deg,rgba(139,108,242,0.6),transparent); }
+    .edu-orn-line-r{ height:1px; width:70px; background:linear-gradient(270deg,rgba(139,108,242,0.6),transparent); }
+    .edu-orn-diamond {
+      width:9px; height:9px;
+      background: var(--grad-teal);
+      transform:rotate(45deg); flex-shrink:0;
+      box-shadow: 0 0 12px rgba(79,209,197,0.6);
+    }
+    .edu-orn-text { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-2); font-weight:600; }
+
+    /* ── STATS — 3D TILT GLASS CARDS ── */
+    .edu-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:36px; perspective:1200px; }
+    .edu-stat {
+      position:relative; padding:24px 22px;
+      background: var(--grad-card);
+      border:1px solid var(--stroke);
+      border-radius:20px;
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.08);
+      overflow:hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s, border-color 0.3s;
+      animation: cardIn 0.8s cubic-bezier(0.22,1,0.36,1) both;
+      cursor: default;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(40px) rotateX(-12deg); }
+      to   { opacity:1; transform: translateY(0) rotateX(0deg); }
+    }
+    .edu-stat::before {
+      content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background: linear-gradient(135deg, rgba(255,255,255,0.16) 0%, transparent 40%);
+    }
+    .edu-stat::after {
+      content:''; position:absolute; top:-2px; left:-2px; right:-2px; height:3px;
+      background: var(--topbar, var(--grad-teal));
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 0 20px rgba(139,108,242,0.5);
+    }
+    .edu-stat:hover {
+      transform: translateY(-8px) rotateX(6deg) rotateY(-4deg);
+      border-color: var(--stroke-2);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(139,108,242,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .edu-stat-icon-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; position:relative; z-index:2; }
+    .edu-stat-icon {
+      width:48px; height:48px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center; font-size:22px;
+      background: var(--icon-bg, rgba(139,108,242,0.18));
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
+      transform: translateZ(20px);
+    }
+    .edu-stat-chip {
+      font-size:10px; font-weight:700; letter-spacing:0.1em;
+      padding:5px 12px; border-radius:100px;
+      text-transform:uppercase;
+      background: rgba(255,255,255,0.08);
+      border:1px solid var(--stroke);
+      color: var(--chip-clr, var(--ink-1));
+    }
+    .edu-stat-num {
+      font-family:'Fraunces',serif;
+      font-size:56px; font-weight:700; line-height:1;
+      color: var(--ink-0); margin-bottom:6px;
+      letter-spacing:-2px;
+      background: var(--num-grad, linear-gradient(135deg,#fff,#c8d0ee));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      filter: drop-shadow(0 2px 12px rgba(255,255,255,0.15));
+      transform: translateZ(30px);
+    }
+    .edu-stat-lbl {
+      font-size:11px; color:var(--ink-2); font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+      transform: translateZ(15px);
+    }
+    .edu-stat-glow {
+      position:absolute; bottom:-50px; right:-50px;
+      width:140px; height:140px; border-radius:50%;
+      filter: blur(40px); opacity:0.4; pointer-events:none;
+      background: var(--glow-clr, var(--violet));
+    }
+
+    /* ── BUTTONS ── */
+    .edu-actions { display:flex; gap:14px; margin-bottom:48px; flex-wrap:wrap; animation: fadeUp 0.9s ease 0.4s both; }
+
+    .edu-btn {
       display:inline-flex; align-items:center; gap:10px;
-      font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
-      color:var(--gold);
-      background:var(--gold-xl); border:1px solid rgba(181,134,13,0.25);
-      border-radius:4px; padding:7px 16px; margin-bottom:22px;
-    }
-    .db-kicker::before,.db-kicker::after {
-      content:''; display:inline-block; width:18px; height:1px; background:var(--gold);
-    }
-    .db-h1 {
-      font-family:'Playfair Display',serif;
-      font-size:clamp(40px,5.5vw,68px);
-      font-weight:700; line-height:1.08;
-      color:var(--ink); letter-spacing:-1.5px; margin-bottom:18px;
-    }
-    .db-h1-line2 {
-      font-style:italic; color:var(--sage);
-    }
-    .db-desc {
-      font-size:14.5px; line-height:1.85; font-weight:300;
-      color:var(--ink-l); max-width:540px;
-    }
-    .db-ornament {
-      display:flex; align-items:center; gap:16px; margin-top:28px;
-    }
-    .db-orn-line  { height:1px; width:60px; background:linear-gradient(90deg,rgba(45,106,79,0.35),transparent); }
-    .db-orn-line-r{ height:1px; width:60px; background:linear-gradient(270deg,rgba(45,106,79,0.35),transparent); }
-    .db-orn-diamond { width:7px; height:7px; border:1.5px solid rgba(45,106,79,0.3); transform:rotate(45deg); flex-shrink:0; }
-    .db-orn-text { font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-xl); }
-
-    /* ── Stats ── */
-    .db-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
-  .db-stat {
-    background: linear-gradient(160deg, #ffffff 0%, #eaf0f6 100%);
-  border:1.5px solid #c0ccd8; border-radius:16px; padding:22px 20px;
-  position:relative; overflow:hidden;
-  box-shadow: 0 2px 0px #b8b0a0, 0 6px 24px rgba(26,26,46,0.18);
-  transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-  animation:fadeUp 0.7s ease both;
-}
-    .db-stat::after {
-      content:''; position:absolute; inset:0;
-      background:linear-gradient(135deg,rgba(255,255,255,0.8),transparent);
-      border-radius:inherit; pointer-events:none;
-    }
-    .db-stat:hover {
-  transform:translateY(-6px);
-  border-color:#a8a090;
-  box-shadow: 0 3px 0px #a8a090, 0 12px 36px rgba(26,26,46,0.22);
-}
-    .db-stat-topbar { position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
-    .db-stat-icon-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-    .db-stat-icon {
-      width:40px; height:40px; border-radius:10px;
-      display:flex; align-items:center; justify-content:center; font-size:18px;
-      border:1px solid rgba(0,0,0,0.05);
-    }
-    .db-stat-chip {
-      font-size:10px; font-weight:600; letter-spacing:0.07em;
-      padding:3px 10px; border-radius:100px;
-    }
-   .db-stat-num {
-  font-family:'Playfair Display',serif;
-  font-size:50px; font-weight:700; line-height:1; color:#0d0d1f; margin-bottom:4px;
-}
-.db-stat-lbl { font-size:11px; color:#2a2a3a; font-weight:700; letter-spacing:0.06em; }
-    .db-stat-glow {
-      position:absolute; bottom:-30px; right:-30px;
-      width:100px; height:100px; border-radius:50%;
-      filter:blur(30px); opacity:0.08; pointer-events:none;
-    }
-
-    /* ── Buttons ── */
-    .db-actions { display:flex; gap:12px; margin-bottom:44px; flex-wrap:wrap; animation:fadeUp 0.8s ease 0.3s both; }
-
-    .db-btn-primary {
-      display:inline-flex; align-items:center; gap:10px;
-      background:linear-gradient(135deg, var(--sage) 0%, var(--sage-m) 100%);
-      color:#fff; border:none; border-radius:10px;
-      padding:13px 26px; font-size:14px; font-weight:600;
-      cursor:pointer; font-family:'DM Sans',sans-serif;
-      box-shadow:0 4px 16px rgba(45,106,79,0.35);
-      transition:transform 0.2s, box-shadow 0.2s;
+      border:none; border-radius:14px;
+      padding:14px 28px; font-size:14px; font-weight:600;
+      cursor:pointer; font-family:'Outfit',sans-serif;
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s, filter 0.25s;
       position:relative; overflow:hidden;
+      letter-spacing:0.02em;
     }
-    .db-btn-primary::before {
-      content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
-      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
-      transition:left 0.5s;
+    .edu-btn::before {
+      content:''; position:absolute; top:0; left:-120%; width:60%; height:100%;
+      background: linear-gradient(110deg, transparent, rgba(255,255,255,0.35), transparent);
+      transition: left 0.6s;
+      transform: skewX(-20deg);
     }
-    .db-btn-primary:hover::before { left:100%; }
-    .db-btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(45,106,79,0.45); }
+    .edu-btn:hover::before { left:140%; }
+    .edu-btn:hover { transform: translateY(-3px) scale(1.02); }
+    .edu-btn:active { transform: translateY(-1px) scale(0.99); }
 
-    .db-btn-gold {
-      display:inline-flex; align-items:center; gap:8px;
-      background:linear-gradient(135deg, var(--gold), var(--gold-l));
-      color:#fff; border:none; border-radius:10px;
-      padding:13px 24px; font-size:14px; font-weight:600;
-      cursor:pointer; font-family:'DM Sans',sans-serif;
-      box-shadow:0 4px 16px rgba(181,134,13,0.3);
-      transition:all 0.2s;
+    .edu-btn-primary {
+      background: var(--grad-hero);
+      color:#fff;
+      box-shadow: 0 12px 30px rgba(139,108,242,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
     }
-    .db-btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(181,134,13,0.45); }
+    .edu-btn-primary:hover { box-shadow: 0 16px 40px rgba(139,108,242,0.65), inset 0 1px 0 rgba(255,255,255,0.3); }
 
-    .db-btn-ghost {
-      display:inline-flex; align-items:center; gap:8px;
-      background:var(--white); color:var(--ink-l);
-      border:1px solid var(--cream-dd); border-radius:10px;
-      padding:13px 20px; font-size:14px; font-weight:500;
-      cursor:pointer; font-family:'DM Sans',sans-serif;
-      box-shadow: var(--shadow-s);
-      transition:all 0.2s;
+    .edu-btn-gold {
+      background: var(--grad-gold);
+      color:#1a1230;
+      box-shadow: 0 10px 28px rgba(245,184,64,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
     }
-    .db-btn-ghost:hover { background:var(--cream); border-color:var(--cream-dd); color:var(--ink); transform:translateY(-2px); box-shadow: var(--shadow-m); }
+    .edu-btn-gold:hover { box-shadow: 0 14px 36px rgba(245,184,64,0.6), inset 0 1px 0 rgba(255,255,255,0.4); }
 
-    /* ── Section header ── */
-    .db-sec-hd { display:flex; align-items:center; gap:16px; margin-bottom:16px; animation:fadeUp 0.8s ease 0.38s both; }
-    .db-sec-hd-lbl { font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-xl); }
-    .db-sec-hd-line { flex:1; height:1px; background:linear-gradient(90deg,var(--cream-dd),transparent); }
-    .db-sec-hd-count {
-      font-size:11px; color:var(--sage-m); font-weight:600;
-      background:var(--sage-xl); border:1px solid rgba(45,106,79,0.15); border-radius:100px; padding:3px 12px;
+    .edu-btn-ghost {
+      background: var(--glass);
+      color: var(--ink-0);
+      border:1px solid var(--stroke-2);
+      backdrop-filter: blur(14px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
     }
+    .edu-btn-ghost:hover { background: var(--glass-2); border-color: rgba(255,255,255,0.32); }
 
-    /* ── Table ── */
-      .db-table {
-      background:#ffffff;
-      border:1px solid #c0ccd8; border-radius:18px; overflow:hidden;
-      animation:fadeUp 0.8s ease 0.43s both;
-      box-shadow: var(--shadow-s);
+    /* ── SECTION HEADER ── */
+    .edu-sec-hd { display:flex; align-items:center; gap:18px; margin-bottom:18px; animation: fadeUp 0.9s ease 0.5s both; }
+    .edu-sec-hd-lbl { font-size:10px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--ink-2); }
+    .edu-sec-hd-line { flex:1; height:1px; background:linear-gradient(90deg,var(--stroke-2),transparent); }
+
+    /* ── CREDIT ── */
+    .edu-credit {
+      margin-top:60px; padding-top:26px;
+      border-top:1px solid var(--stroke);
+      display:flex; align-items:center; justify-content:space-between; gap:20px;
+      animation: fadeUp 0.9s ease 0.6s both;
+      flex-wrap:wrap;
     }
-   .db-thead {
-  display:grid; grid-template-columns:52px 1.2fr 1fr 1fr 1fr 96px;
-  padding:14px 24px;
-  background:#e8e2d6;
-      border-bottom:1px solid var(--cream-dd);
+    .edu-credit-text { font-size:13px; color:var(--ink-2); line-height:1.8; }
+    .edu-credit-text strong {
+      background: var(--grad-teal);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      font-weight:700;
     }
-    .db-thead span {
-      font-size:10px; font-weight:700; letter-spacing:0.13em;
-      text-transform:uppercase; color:var(--ink-l);
-    }
-    .db-row {
-      display:grid; grid-template-columns:52px 1.2fr 1fr 1fr 1fr 96px;
-      padding:15px 24px; border-bottom:1px solid var(--cream-d);
-      align-items:center; cursor:pointer;
-      transition:all 0.16s ease;
-      animation:rowIn 0.4s ease both;
-    }
-    @keyframes rowIn {
-      from { opacity:0; transform:translateX(-12px); }
-      to   { opacity:1; transform:translateX(0); }
-    }
-    .db-row:last-child { border-bottom:none; }
-      .db-row:nth-child(even) { background:rgba(200,215,230,0.3); }
-    .db-row:hover { background:rgba(100,149,200,0.12); border-color:rgba(100,149,200,0.2); transform:translateX(2px); }
-    .db-row-num {
-      font-family:'Playfair Display',serif; font-size:13px; font-weight:700;
-      color:var(--ink-xl);
-      background:var(--cream-d);
-      width:28px; height:28px; border-radius:8px;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .db-row-cat { font-size:13px; font-weight:600; color:var(--sage); }
-.db-row-cell { font-size:13px; color:#1a1a2e; font-weight:500; }
-    .db-badge-done {
-      display:inline-flex; align-items:center; gap:5px;
-      background:var(--sage-xl);
-      border:1px solid rgba(45,106,79,0.25);
-      color:var(--sage); border-radius:100px;
-      padding:4px 12px; font-size:10px; font-weight:700; letter-spacing:0.05em;
+    .edu-credit-mark {
+      font-family:'Fraunces',serif; font-size:34px; font-weight:700;
+      font-style:italic;
+      background: var(--grad-hero);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      letter-spacing:-1px;
+      filter: drop-shadow(0 4px 20px rgba(245,184,64,0.3));
     }
 
-    /* ── Empty ── */
-    .db-empty { text-align:center; padding:70px 20px; }
-    .db-empty-icon { font-size:48px; margin-bottom:16px; opacity:0.3; }
-    .db-empty-title { font-family:'Playfair Display',serif; font-size:20px; color:var(--ink-xl); margin-bottom:8px; }
-    .db-empty-desc { font-size:13px; color:var(--ink-xl); }
-
-    /* ── Credit ── */
-    .db-credit {
-      margin-top:52px; padding-top:22px; border-top:1px solid var(--cream-dd);
-      display:flex; align-items:center; justify-content:space-between;
-      animation:fadeUp 0.8s ease 0.55s both;
-    }
-    .db-credit-text { font-size:12px; color:var(--ink-xl); line-height:1.7; }
-    .db-credit-text strong { color:var(--ink-l); }
-    .db-credit-mark {
-      font-family:'Playfair Display',serif; font-size:26px; font-weight:700;
-      font-style:italic; color:rgba(45,106,79,0.15); letter-spacing:-1px;
-    }
-
-    /* ── Modal ── */
-    .db-overlay {
+    /* ── MODAL ── */
+    .edu-overlay {
       position:fixed; inset:0; z-index:1000;
-      background:rgba(26,26,46,0.5); backdrop-filter:blur(12px);
+      background: rgba(11,16,32,0.7); backdrop-filter: blur(16px);
       display:flex; align-items:center; justify-content:center; padding:20px;
-      animation:overlayIn 0.2s ease;
+      animation: overlayIn 0.25s ease;
     }
     @keyframes overlayIn { from{opacity:0} to{opacity:1} }
-    .db-modal {
-      background:var(--white); border:1px solid var(--cream-dd);
-      border-radius:20px; width:100%; max-width:800px;
+    .edu-modal {
+      background: linear-gradient(160deg, rgba(26,37,80,0.95) 0%, rgba(17,26,54,0.95) 100%);
+      border:1px solid var(--stroke-2);
+      border-radius:24px; width:100%; max-width:820px;
       max-height:88vh; overflow-y:auto;
-      box-shadow: var(--shadow-l);
-      animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(139,108,242,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+      backdrop-filter: blur(30px);
+      animation: modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
     }
     @keyframes modalIn {
-      from{opacity:0;transform:scale(0.93) translateY(16px)}
-      to{opacity:1;transform:scale(1) translateY(0)}
+      from{opacity:0; transform: scale(0.9) translateY(20px) rotateX(-8deg)}
+      to{opacity:1; transform: scale(1) translateY(0) rotateX(0deg)}
     }
-    .db-modal-hdr {
-      padding:26px 30px 18px; border-bottom:1px solid var(--cream-dd);
+    .edu-modal-hdr {
+      padding:28px 32px 20px; border-bottom:1px solid var(--stroke);
       display:flex; justify-content:space-between; align-items:flex-start;
-      position:sticky; top:0; background:var(--white); z-index:10;
+      position:sticky; top:0;
+      background: linear-gradient(180deg, rgba(26,37,80,0.98), rgba(26,37,80,0.85));
+      backdrop-filter: blur(20px);
+      z-index:10;
     }
-    .db-modal-id { font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--sage); margin-bottom:6px; font-weight:600; }
-    .db-modal-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--ink); }
-    .db-modal-x {
-      width:34px; height:34px; border-radius:50%;
-      background:var(--cream); border:1px solid var(--cream-dd);
-      color:var(--ink-l); font-size:18px;
+    .edu-modal-id { font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color: var(--gold-2); margin-bottom:8px; font-weight:700; }
+    .edu-modal-title { font-family:'Fraunces',serif; font-size:24px; font-weight:700; color: var(--ink-0); }
+    .edu-modal-x {
+      width:38px; height:38px; border-radius:50%;
+      background: var(--glass); border:1px solid var(--stroke-2);
+      color: var(--ink-1); font-size:20px;
       cursor:pointer; display:flex; align-items:center; justify-content:center;
-      transition:all 0.2s; flex-shrink:0;
+      transition: all 0.25s; flex-shrink:0;
     }
-    .db-modal-x:hover { background:var(--cream-dd); color:var(--ink); }
-    .db-modal-body { padding:22px 30px 28px; }
-    .db-modal-sec { margin-bottom:24px; }
-    .db-modal-sec-title {
-      font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
-      color:var(--sage); margin-bottom:10px; padding-bottom:7px;
-      border-bottom:1px solid var(--cream-dd);
-      display:flex; align-items:center; gap:8px;
+    .edu-modal-x:hover { background: var(--glass-2); color: var(--ink-0); transform: rotate(90deg) scale(1.05); }
+    .edu-modal-body { padding:24px 32px 30px; }
+    .edu-modal-sec { margin-bottom:26px; }
+    .edu-modal-sec-title {
+      font-size:11px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase;
+      color: var(--teal-2); margin-bottom:12px; padding-bottom:9px;
+      border-bottom:1px solid var(--stroke);
+      display:flex; align-items:center; gap:10px;
     }
-    .db-modal-sec-title::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--sage-l); }
-    .db-modal-fields { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .db-modal-field { background:var(--cream); border:1px solid var(--cream-dd); border-radius:10px; padding:11px 14px; }
-    .db-modal-field-lbl { font-size:10px; color:var(--ink-xl); font-weight:600; letter-spacing:0.07em; margin-bottom:4px; text-transform:uppercase; }
-    .db-modal-field-val { font-size:13px; color:var(--ink-m); font-weight:500; }
-    .db-modal-footer { padding:0 30px 26px; text-align:center; }
-    .db-modal-footer button {
-      background:linear-gradient(135deg, var(--sage), var(--sage-m));
-      color:#fff; border:none; border-radius:10px;
-      padding:11px 40px; font-size:14px; font-weight:600;
-      cursor:pointer; font-family:'DM Sans',sans-serif;
-      box-shadow:0 4px 16px rgba(45,106,79,0.3); transition:all 0.2s;
+    .edu-modal-sec-title::before {
+      content:''; display:inline-block; width:8px; height:8px; border-radius:50%;
+      background: var(--grad-teal);
+      box-shadow: 0 0 10px var(--teal);
     }
-    .db-modal-footer button:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(45,106,79,0.45); }
-    .db-modal::-webkit-scrollbar { width:4px; }
-    .db-modal::-webkit-scrollbar-track { background:transparent; }
-    .db-modal::-webkit-scrollbar-thumb { background:var(--cream-dd); border-radius:4px; }
+    .edu-modal-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .edu-modal-field {
+      background: var(--glass); border:1px solid var(--stroke);
+      border-radius:12px; padding:12px 16px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .edu-modal-field:hover { background: var(--glass-2); border-color: var(--stroke-2); }
+    .edu-modal-field-lbl { font-size:10px; color:var(--ink-3); font-weight:700; letter-spacing:0.1em; margin-bottom:5px; text-transform:uppercase; }
+    .edu-modal-field-val { font-size:13.5px; color: var(--ink-0); font-weight:500; }
+    .edu-modal-footer { padding:0 32px 28px; text-align:center; }
+    .edu-modal::-webkit-scrollbar { width:6px; }
+    .edu-modal::-webkit-scrollbar-track { background:transparent; }
+    .edu-modal::-webkit-scrollbar-thumb { background: var(--stroke-2); border-radius:6px; }
 
-    @media(max-width:720px) {
-      .db-stats { grid-template-columns:1fr 1fr; }
-      .db-thead,.db-row { grid-template-columns:40px 1fr 1fr; }
-      .db-thead span:nth-child(n+4),.db-row>*:nth-child(n+4) { display:none; }
-      .db-modal-fields { grid-template-columns:1fr; }
-      .db-h1 { font-size:36px; }
-      .db-inner { padding:0 20px 60px; }
+    /* Login form inputs */
+    .edu-input {
+      width:100%; padding:12px 16px;
+      background: var(--glass);
+      border:1px solid var(--stroke-2);
+      border-radius:12px; font-size:14px;
+      font-family:'Outfit',sans-serif;
+      color: var(--ink-0);
+      transition: border-color 0.2s, background 0.2s;
+      outline:none;
+    }
+    .edu-input:focus { border-color: var(--teal); background: var(--glass-2); box-shadow: 0 0 0 3px rgba(79,209,197,0.15); }
+    .edu-label { font-size:12px; font-weight:600; color: var(--ink-1); display:block; margin-bottom:8px; letter-spacing:0.05em; }
+
+    @media(max-width:880px) {
+      .edu-stats { grid-template-columns:1fr 1fr; }
+      .edu-modal-fields { grid-template-columns:1fr; }
+      .edu-h1 { font-size:42px; }
+      .edu-inner { padding:0 22px 60px; }
+      .edu-credit { flex-direction:column; align-items:flex-start; }
     }
   `;
   document.head.appendChild(el);
@@ -486,25 +604,56 @@ const SECTIONS = [
 function AnimatedNum({ target }) {
   const [val, setVal] = useState(0);
   useEffect(() => {
-    if (!target) return;
+    if (!target) { setVal(0); return; }
     let start = null;
-    const dur = 1400;
+    const dur = 1600;
+    let raf;
     const step = (ts) => {
       if (!start) start = ts;
       const p = Math.min((ts - start) / dur, 1);
       const ease = 1 - Math.pow(1 - p, 3);
       setVal(Math.round(ease * target));
-      if (p < 1) requestAnimationFrame(step);
+      if (p < 1) raf = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
   }, [target]);
   return val;
+}
+
+/* ══════════════════════ 3D TILT WRAPPER ════════════════════════════ */
+function Tilt3D({ children, className, style, max = 10 }) {
+  const ref = useRef(null);
+  const handleMove = (e) => {
+    const node = ref.current;
+    if (!node) return;
+    const r = node.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    node.style.transform = `perspective(900px) rotateY(${x * max}deg) rotateX(${-y * max}deg) translateY(-6px)`;
+  };
+  const handleLeave = () => {
+    const node = ref.current;
+    if (!node) return;
+    node.style.transform = '';
+  };
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={style}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+    >
+      {children}
+    </div>
+  );
 }
 
 /* ══════════════════════ MAIN ════════════════════════════════════════ */
 export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
   const [surveys,  setSurveys]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [, setLoading]  = useState(true);
   const [selected, setSelected] = useState(null);
   const [isAdmin,      setIsAdmin]      = useState(false);
   const [loginVisible, setLoginVisible] = useState(false);
@@ -514,7 +663,7 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
     injectStyles();
     fetch(API_GET)
       .then(r => r.json())
-      .then(d => { setSurveys(d); setLoading(false); })
+      .then(d => { setSurveys(Array.isArray(d) ? d : []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
@@ -526,16 +675,29 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
   const dateLabel = now.toLocaleDateString("en-PK",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
 
   const STATS = [
-    { icon:"📊", val:surveys.length, lbl:"Total Responses",   color:"#2d6a4f", chip:"Cumulative", chipBg:"rgba(45,106,79,0.10)",  chipClr:"#2d6a4f", topbar:"linear-gradient(90deg,#2d6a4f,#40916c)" },
-    { icon:"📅", val:todayCount,     lbl:"Collected Today",   color:"#b5860d", chip:"Live",        chipBg:"rgba(181,134,13,0.10)", chipClr:"#b5860d", topbar:"linear-gradient(90deg,#b5860d,#e8b030)" },
-    { icon:"📋", val:8,             lbl:"Survey Sections",   color:"#5a5a72", chip:"Fixed",       chipBg:"rgba(90,90,114,0.08)",  chipClr:"#5a5a72", topbar:"linear-gradient(90deg,#5a5a72,#9898aa)" },
-    { icon:"🌍", val:6,              lbl:"Provinces Covered", color:"#9b4444", chip:"PK",          chipBg:"rgba(155,68,68,0.08)",  chipClr:"#9b4444", topbar:"linear-gradient(90deg,#9b4444,#e07070)" },
+    { icon:"🎓", val:surveys.length, lbl:"Total Responses",   chip:"Cumulative",
+      topbar:"linear-gradient(90deg,#8b6cf2,#b39bff)",
+      iconBg:"rgba(139,108,242,0.22)", chipClr:"#b39bff",
+      numGrad:"linear-gradient(135deg,#fff 0%,#b39bff 100%)",
+      glow:"#8b6cf2" },
+    { icon:"📚", val:todayCount,     lbl:"Collected Today",   chip:"Live",
+      topbar:"linear-gradient(90deg,#f5b840,#ffd870)",
+      iconBg:"rgba(245,184,64,0.22)", chipClr:"#ffd870",
+      numGrad:"linear-gradient(135deg,#fff 0%,#ffd870 100%)",
+      glow:"#f5b840" },
+    { icon:"🧪", val:8,             lbl:"Survey Sections",   chip:"Fixed",
+      topbar:"linear-gradient(90deg,#4fd1c5,#7ef0e6)",
+      iconBg:"rgba(79,209,197,0.22)", chipClr:"#7ef0e6",
+      numGrad:"linear-gradient(135deg,#fff 0%,#7ef0e6 100%)",
+      glow:"#4fd1c5" },
+    { icon:"🌏", val:6,              lbl:"Provinces Covered", chip:"PK",
+      topbar:"linear-gradient(90deg,#ff7a90,#f5b840)",
+      iconBg:"rgba(255,122,144,0.22)", chipClr:"#ff9bac",
+      numGrad:"linear-gradient(135deg,#fff 0%,#ff9bac 100%)",
+      glow:"#ff7a90" },
   ];
 
-  // CSV export with new fields
-
-
- const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = (e) => {
     e.preventDefault();
     const u = e.target.username.value;
     const p = e.target.password.value;
@@ -547,38 +709,37 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
       setLoginError("Invalid username or password.");
     }
   };
-  
-  // CSV export with new fields
+
   const handleExport = () => {
     if (!surveys.length) return;
-  const headers = [
-  "#","Respondent Category","Institution Type","Area","Province",
-  "Mother Tongue Understanding","English Difficulty Early Grades","Urdu More Accessible","English Barrier Rural",
-  "English Barrier Urban","Foreign Language Affects Learning","Participation Local Language",
-  "Early Education Mother Tongue","Concept Learning Mother Tongue","English Promotes Rote Learning","Urdu Bridge Language","Mother Tongue Reduces Gap",
-  "English Favors Elite","Regional Students Disadvantaged","Language Policy Inequality","Job Opportunities English",
-  "Teachers Effective English","Teachers Switch Local Language","Teacher Can Teach Urdu Local","Interaction Shared Language","Teacher Uses Urdu Local In English",
-  "Mother Tongue Primary","Urdu Primary","English Primary","Bilingual Mother Urdu","Gradual Transition Primary",
-  "Urdu Middle","English Middle","Bilingual Urdu English Middle","Mother Tongue Support Middle","Gradual Shift English Middle",
-  "English Matric","Mother Tongue Matric","Urdu Matric","Bilingual Matric","Prepared Higher Education","Technical Subjects English",
-  "Dropout Due To Language","English Primary Dropout","Rural Dropout Language","Mother Tongue Reduce Dropout","Language Mismatch Dropout Risk","Language Absenteeism",
-  "Urdu Reduce Dropout","Weak English Dropout","Multilingual Retention","English Only High Dropout","Repeat Grades Language Issue","Early Gaps Lead Dropout",
-  "Highest Dropout Level","Language Dropout Stage","At Risk Students Group"
-];
-const keys = [
-  "index","respondentCategory","institutionType","area","province",
-  "motherTongueUnderstanding","englishDifficultyEarlyGrades","urduMoreAccessible","englishBarrierRural",
-  "englishBarrierUrban","foreignLanguageAffectsLearning","participationLocalLanguage",
-  "earlyEducationMotherTongue","conceptLearningMotherTongue","englishPromotesRoteLearning","urduBridgeLanguage","motherTongueReducesGap",
-  "englishFavorsElite","regionalStudentsDisadvantaged","languagePolicyInequality","jobOpportunitiesEnglish",
-  "teachersEffectiveEnglish","teachersSwitchLocalLanguage","teacherCanTeachUrduLocal","interactionSharedLanguage","teacherUsesUrduLocalInEnglish",
-  "motherTonguePrimary","urduPrimary","englishPrimary","bilingualMotherUrdu","gradualTransitionPrimary",
-  "urduMiddle","englishMiddle","bilingualUrduEnglishMiddle","motherTongueSupportMiddle","gradualShiftEnglishMiddle",
-  "englishMatric","motherTongueMatric","urduMatric","bilingualMatric","preparedForHigherEducation","technicalSubjectsEnglish",
-  "dropoutDueToLanguage","englishPrimaryDropout","ruralDropoutLanguage","motherTongueReduceDropout","languageMismatchDropoutRisk","languageAbsenteeism",
-  "urduReduceDropout","weakEnglishDropout","multilingualRetention","englishOnlyHighDropout","repeatGradesLanguageIssue","earlyGapsLeadDropout",
-  "highestDropoutLevel","languageDropoutStage","atRiskStudentsGroup"
-];
+    const headers = [
+      "#","Respondent Category","Institution Type","Area","Province",
+      "Mother Tongue Understanding","English Difficulty Early Grades","Urdu More Accessible","English Barrier Rural",
+      "English Barrier Urban","Foreign Language Affects Learning","Participation Local Language",
+      "Early Education Mother Tongue","Concept Learning Mother Tongue","English Promotes Rote Learning","Urdu Bridge Language","Mother Tongue Reduces Gap",
+      "English Favors Elite","Regional Students Disadvantaged","Language Policy Inequality","Job Opportunities English",
+      "Teachers Effective English","Teachers Switch Local Language","Teacher Can Teach Urdu Local","Interaction Shared Language","Teacher Uses Urdu Local In English",
+      "Mother Tongue Primary","Urdu Primary","English Primary","Bilingual Mother Urdu","Gradual Transition Primary",
+      "Urdu Middle","English Middle","Bilingual Urdu English Middle","Mother Tongue Support Middle","Gradual Shift English Middle",
+      "English Matric","Mother Tongue Matric","Urdu Matric","Bilingual Matric","Prepared Higher Education","Technical Subjects English",
+      "Dropout Due To Language","English Primary Dropout","Rural Dropout Language","Mother Tongue Reduce Dropout","Language Mismatch Dropout Risk","Language Absenteeism",
+      "Urdu Reduce Dropout","Weak English Dropout","Multilingual Retention","English Only High Dropout","Repeat Grades Language Issue","Early Gaps Lead Dropout",
+      "Highest Dropout Level","Language Dropout Stage","At Risk Students Group"
+    ];
+    const keys = [
+      "index","respondentCategory","institutionType","area","province",
+      "motherTongueUnderstanding","englishDifficultyEarlyGrades","urduMoreAccessible","englishBarrierRural",
+      "englishBarrierUrban","foreignLanguageAffectsLearning","participationLocalLanguage",
+      "earlyEducationMotherTongue","conceptLearningMotherTongue","englishPromotesRoteLearning","urduBridgeLanguage","motherTongueReducesGap",
+      "englishFavorsElite","regionalStudentsDisadvantaged","languagePolicyInequality","jobOpportunitiesEnglish",
+      "teachersEffectiveEnglish","teachersSwitchLocalLanguage","teacherCanTeachUrduLocal","interactionSharedLanguage","teacherUsesUrduLocalInEnglish",
+      "motherTonguePrimary","urduPrimary","englishPrimary","bilingualMotherUrdu","gradualTransitionPrimary",
+      "urduMiddle","englishMiddle","bilingualUrduEnglishMiddle","motherTongueSupportMiddle","gradualShiftEnglishMiddle",
+      "englishMatric","motherTongueMatric","urduMatric","bilingualMatric","preparedForHigherEducation","technicalSubjectsEnglish",
+      "dropoutDueToLanguage","englishPrimaryDropout","ruralDropoutLanguage","motherTongueReduceDropout","languageMismatchDropoutRisk","languageAbsenteeism",
+      "urduReduceDropout","weakEnglishDropout","multilingualRetention","englishOnlyHighDropout","repeatGradesLanguageIssue","earlyGapsLeadDropout",
+      "highestDropoutLevel","languageDropoutStage","atRiskStudentsGroup"
+    ];
     const escape = v => `"${String(v??'').replace(/"/g,'""')}"`;
     const rows = surveys.map((s,i) => keys.map(k => escape(k==="index" ? i+1 : s[k])).join(","));
     const csv = [headers.map(escape).join(","), ...rows].join("\n");
@@ -591,154 +752,185 @@ const keys = [
   };
 
   return (
-    <div className="db-root">
-      <div className="db-bg">
-        <div className="db-bg-paper"/>
-        <div className="db-bg-lines"/>
+    <div className="edu-root">
+      {/* Animated educational background */}
+      <div className="edu-bg">
+        <div className="edu-bg-grid"/>
+        <div className="edu-bg-stars"/>
+        <div className="edu-orb o1"/>
+        <div className="edu-orb o2"/>
+        <div className="edu-orb o3"/>
+        <div className="edu-float f1">📖</div>
+        <div className="edu-float f2">🎓</div>
+        <div className="edu-float f3">✏️</div>
+        <div className="edu-float f4">🌐</div>
+        <div className="edu-float f5">🧠</div>
+        <div className="edu-float f6">📐</div>
+        <div className="edu-cube c1">
+          <div className="face f-front"/><div className="face f-back"/>
+          <div className="face f-right"/><div className="face f-left"/>
+          <div className="face f-top"/><div className="face f-bottom"/>
+        </div>
+        <div className="edu-cube c2">
+          <div className="face f-front"/><div className="face f-back"/>
+          <div className="face f-right"/><div className="face f-left"/>
+          <div className="face f-top"/><div className="face f-bottom"/>
+        </div>
       </div>
-      <div className="db-watermark">C</div>
 
-      <div className="db-ribbon"/>
+      <div className="edu-ribbon"/>
 
-      <div className="db-inner">
+      <div className="edu-inner">
         {/* Nav */}
-        <div className="db-nav">
-          <div className="db-nav-left">
-            <div className="db-nav-emblem">
-              <div className="db-nav-emblem-inner">AI</div>
+        <div className="edu-nav">
+          <div className="edu-nav-left">
+            <div className="edu-nav-emblem">
+              <div className="edu-nav-emblem-inner">AI</div>
             </div>
             <div>
-              <div className="db-nav-org">CeLTS · AIOU · Islamabad</div>
-              <div className="db-nav-sub">Centre for Languages &amp; Translation Studies</div>
+              <div className="edu-nav-org">CeLTS · AIOU · Islamabad</div>
+              <div className="edu-nav-sub">Centre for Languages &amp; Translation Studies</div>
             </div>
           </div>
-          <div className="db-nav-right">
-            <div className="db-nav-live"><div className="db-pulse"/>System Live</div>
-            <div className="db-nav-date">{dateLabel}</div>
+          <div className="edu-nav-right">
+            <div className="edu-nav-live"><div className="edu-pulse"/>System Live</div>
+            <div className="edu-nav-date">{dateLabel}</div>
           </div>
         </div>
 
         {/* Hero */}
-        <div className="db-hero">
-          <div className="db-kicker">Official Research Portal &nbsp;·&nbsp; 2026</div>
-          <h1 className="db-h1">
+        <div className="edu-hero">
+          <div className="edu-kicker">Official Research Portal · 2026</div>
+          <h1 className="edu-h1">
             Language Policy<br/>
-            <span className="db-h1-line2">Survey Dashboard</span>
+            <span className="edu-h1-line2">Survey Dashboard</span>
           </h1>
-          <p className="db-desc">
+          <p className="edu-desc">
             Documenting multilingual education perspectives across all six provinces of Pakistan.
             A national research initiative under Allama Iqbal Open University, Islamabad.
           </p>
-          <div className="db-ornament">
-            <div className="db-orn-line"/>
-            <div className="db-orn-diamond"/>
-            <div className="db-orn-text">Evidence-Based Language Teaching Policy Framework</div>
-            <div className="db-orn-diamond"/>
-            <div className="db-orn-line-r"/>
+          <div className="edu-ornament">
+            <div className="edu-orn-line"/>
+            <div className="edu-orn-diamond"/>
+            <div className="edu-orn-text">Evidence-Based Language Teaching Policy Framework</div>
+            <div className="edu-orn-diamond"/>
+            <div className="edu-orn-line-r"/>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="db-stats">
+        <div className="edu-stats">
           {STATS.map((s,i) => (
-            <div className="db-stat" key={s.lbl} style={{animationDelay:`${0.1+i*0.09}s`}}>
-              <div className="db-stat-topbar" style={{background:s.topbar}}/>
-              <div className="db-stat-icon-row">
-                <div className="db-stat-icon" style={{background:`${s.color}12`}}>{s.icon}</div>
-                <div className="db-stat-chip" style={{background:s.chipBg,color:s.chipClr}}>{s.chip}</div>
+            <Tilt3D
+              key={s.lbl}
+              className="edu-stat"
+              style={{
+                animationDelay:`${0.15 + i*0.1}s`,
+                ['--topbar']: s.topbar,
+                ['--icon-bg']: s.iconBg,
+                ['--chip-clr']: s.chipClr,
+                ['--num-grad']: s.numGrad,
+                ['--glow-clr']: s.glow,
+              }}
+            >
+              <div className="edu-stat-icon-row">
+                <div className="edu-stat-icon">{s.icon}</div>
+                <div className="edu-stat-chip">{s.chip}</div>
               </div>
-              <div className="db-stat-num"><AnimatedNum target={s.val}/></div>
-              <div className="db-stat-lbl">{s.lbl}</div>
-              <div className="db-stat-glow" style={{background:s.color}}/>
-            </div>
+              <div className="edu-stat-num"><AnimatedNum target={s.val}/></div>
+              <div className="edu-stat-lbl">{s.lbl}</div>
+              <div className="edu-stat-glow"/>
+            </Tilt3D>
           ))}
         </div>
 
         {/* Actions */}
-      <div className="db-actions">
-          <button className="db-btn-primary" onClick={onStart}>✦ Start New Survey</button>
+        <div className="edu-actions">
+          <button className="edu-btn edu-btn-primary" onClick={onStart}>✦ Start New Survey</button>
           {!isAdmin ? (
-            <button className="db-btn-gold" onClick={() => { setLoginVisible(true); setLoginError(""); }}>
+            <button className="edu-btn edu-btn-gold" onClick={() => { setLoginVisible(true); setLoginError(""); }}>
               🔐 Admin Login
             </button>
           ) : (
             <>
-              <button className="db-btn-gold" onClick={onAnalytics}>📊 View Analytics</button>
-              <button className="db-btn-gold" onClick={onViewSurveys}>📋 View All Surveys</button>
-              <button className="db-btn-ghost" onClick={() => setIsAdmin(false)}>🚪 Logout</button>
+              <button className="edu-btn edu-btn-gold" onClick={onAnalytics}>📊 View Analytics</button>
+              <button className="edu-btn edu-btn-gold" onClick={onViewSurveys}>📋 View All Surveys</button>
+              <button className="edu-btn edu-btn-ghost" onClick={handleExport}>⬇ Export CSV</button>
+              <button className="edu-btn edu-btn-ghost" onClick={() => setIsAdmin(false)}>🚪 Logout</button>
             </>
           )}
         </div>
 
-        {/* Table header */}
-        <div className="db-sec-hd">
-
+        {/* Section header */}
+        <div className="edu-sec-hd">
+          <div className="edu-sec-hd-lbl">Research Overview</div>
+          <div className="edu-sec-hd-line"/>
         </div>
 
-        {/* Table */}
-       
-
         {/* Credit */}
-        <div className="db-credit">
-          <div className="db-credit-text">
+        <div className="edu-credit">
+          <div className="edu-credit-text">
             <strong>Dr Ghulam Ali</strong> · Director, Centre for Languages &amp; Translation Studies<br/>
             Allama Iqbal Open University, Islamabad &nbsp;·&nbsp; +92 300 6550455
           </div>
-          <div className="db-credit-mark">CeLTS</div>
+          <div className="edu-credit-mark">CeLTS</div>
         </div>
       </div>
 
-      {/* Modal */}
-     {/* Login Popup */}
+      {/* Login Popup */}
       {loginVisible && (
-        <div className="db-overlay" onClick={() => setLoginVisible(false)}>
-          <div className="db-modal" onClick={e => e.stopPropagation()} style={{maxWidth:"380px",padding:"36px 32px"}}>
-            <div className="db-modal-hdr">
+        <div className="edu-overlay" onClick={() => setLoginVisible(false)}>
+          <div className="edu-modal" onClick={e => e.stopPropagation()} style={{maxWidth:"420px"}}>
+            <div className="edu-modal-hdr">
               <div>
-                <div className="db-modal-id">Admin Access</div>
-                <div className="db-modal-title">Admin Login</div>
+                <div className="edu-modal-id">Admin Access</div>
+                <div className="edu-modal-title">Admin Login</div>
               </div>
-              <button className="db-modal-x" onClick={() => setLoginVisible(false)}>×</button>
+              <button className="edu-modal-x" onClick={() => setLoginVisible(false)}>×</button>
             </div>
-            <form onSubmit={handleLoginSubmit} style={{marginTop:"24px",display:"flex",flexDirection:"column",gap:"16px"}}>
+            <form onSubmit={handleLoginSubmit} style={{padding:"24px 32px 32px",display:"flex",flexDirection:"column",gap:"18px"}}>
               <div>
-                <label style={{fontSize:"12px",fontWeight:"600",color:"#4a5468",display:"block",marginBottom:"6px"}}>Username</label>
-<input name="username" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
+                <label className="edu-label">Username</label>
+                <input name="username" className="edu-input" autoComplete="username"/>
               </div>
               <div>
-                <label style={{fontSize:"12px",fontWeight:"600",color:"#4a5468",display:"block",marginBottom:"6px"}}>Password</label>
-<input name="password" type="password" style={{width:"100%",padding:"10px 14px",border:"1px solid #c0ccd8",borderRadius:"8px",fontSize:"14px",fontFamily:"DM Sans,sans-serif"}} />
+                <label className="edu-label">Password</label>
+                <input name="password" type="password" className="edu-input" autoComplete="current-password"/>
               </div>
-              {loginError && <div style={{color:"#c0392b",fontSize:"13px",fontWeight:"600"}}>{loginError}</div>}
-              <button type="submit" className="db-btn-gold" style={{width:"100%",justifyContent:"center",marginTop:"4px"}}>🔐 Login to Analytics</button>
+              {loginError && (
+                <div style={{color:"#ff7a90",fontSize:"13px",fontWeight:"600"}}>{loginError}</div>
+              )}
+              <button type="submit" className="edu-btn edu-btn-gold" style={{width:"100%",justifyContent:"center",marginTop:"6px"}}>
+                🔐 Login to Analytics
+              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Detail Modal */}
       {selected && (
-        <div className="db-overlay" onClick={() => setSelected(null)}>
-          <div className="db-modal" onClick={e => e.stopPropagation()}>
-            <div className="db-modal-hdr">
+        <div className="edu-overlay" onClick={() => setSelected(null)}>
+          <div className="edu-modal" onClick={e => e.stopPropagation()}>
+            <div className="edu-modal-hdr">
               <div>
-                <div className="db-modal-id">Response #{selected.responseId ?? selected.dpId}</div>
-                <div className="db-modal-title">
+                <div className="edu-modal-id">Response #{selected.responseId ?? selected.dpId}</div>
+                <div className="edu-modal-title">
                   {selected.respondentCategory || "—"} &nbsp;·&nbsp; {selected.area || "—"}
                 </div>
               </div>
-              <button className="db-modal-x" onClick={() => setSelected(null)}>×</button>
+              <button className="edu-modal-x" onClick={() => setSelected(null)}>×</button>
             </div>
-            <div className="db-modal-body">
+            <div className="edu-modal-body">
               {SECTIONS.map(sec => (
-                <div className="db-modal-sec" key={sec.title}>
-                  <div className="db-modal-sec-title">{sec.title}</div>
-                  <div className="db-modal-fields">
+                <div className="edu-modal-sec" key={sec.title}>
+                  <div className="edu-modal-sec-title">{sec.title}</div>
+                  <div className="edu-modal-fields">
                     {sec.fields.map(([label,key]) => (
-                      <div className="db-modal-field" key={key}>
-                        <div className="db-modal-field-lbl">{label}</div>
-                        <div className="db-modal-field-val">
-                          {selected[key] || <span style={{color:"#ccc"}}>—</span>}
+                      <div className="edu-modal-field" key={key}>
+                        <div className="edu-modal-field-lbl">{label}</div>
+                        <div className="edu-modal-field-val">
+                          {selected[key] || <span style={{color:"var(--ink-3)"}}>—</span>}
                         </div>
                       </div>
                     ))}
@@ -746,8 +938,8 @@ const keys = [
                 </div>
               ))}
             </div>
-            <div className="db-modal-footer">
-              <button onClick={() => setSelected(null)}>Close</button>
+            <div className="edu-modal-footer">
+              <button className="edu-btn edu-btn-primary" onClick={() => setSelected(null)}>Close</button>
             </div>
           </div>
         </div>
