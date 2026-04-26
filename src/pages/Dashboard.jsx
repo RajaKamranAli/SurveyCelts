@@ -506,9 +506,9 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
   const [surveys,  setSurveys]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [selected, setSelected] = useState(null);
+  const [isAdmin,      setIsAdmin]      = useState(false);
   const [loginVisible, setLoginVisible] = useState(false);
   const [loginError,   setLoginError]   = useState("");
-  const [loginTarget,  setLoginTarget]  = useState("analytics");
 
   useEffect(() => {
     injectStyles();
@@ -533,34 +533,21 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
   ];
 
   // CSV export with new fields
-const handleAnalyticsClick = () => {
-    setLoginTarget("analytics");
-    setLoginVisible(true);
-    setLoginError("");
-  };
 
-  const handleSurveysClick = () => {
-    setLoginTarget("surveys");
-    setLoginVisible(true);
-    setLoginError("");
-  };
 
-  const handleLoginSubmit = (e) => {
+ const handleLoginSubmit = (e) => {
     e.preventDefault();
     const u = e.target.username.value;
     const p = e.target.password.value;
     if (u === "GhulamAdmin" && p === "Ghulam@123") {
+      setIsAdmin(true);
       setLoginVisible(false);
-      if (loginTarget === "analytics") {
-        onAnalytics();
-      } else {
-        onViewSurveys();
-      }
+      setLoginError("");
     } else {
       setLoginError("Invalid username or password.");
     }
   };
-
+  
   // CSV export with new fields
   const handleExport = () => {
     if (!surveys.length) return;
@@ -668,10 +655,19 @@ const keys = [
         </div>
 
         {/* Actions */}
-       <div className="db-actions">
+      <div className="db-actions">
           <button className="db-btn-primary" onClick={onStart}>✦ Start New Survey</button>
-          <button className="db-btn-gold" onClick={handleAnalyticsClick}>📊 View Analytics</button>
-          <button className="db-btn-gold" onClick={handleSurveysClick}>📋 View All Surveys</button>
+          {!isAdmin ? (
+            <button className="db-btn-gold" onClick={() => { setLoginVisible(true); setLoginError(""); }}>
+              🔐 Admin Login
+            </button>
+          ) : (
+            <>
+              <button className="db-btn-gold" onClick={onAnalytics}>📊 View Analytics</button>
+              <button className="db-btn-gold" onClick={onViewSurveys}>📋 View All Surveys</button>
+              <button className="db-btn-ghost" onClick={() => setIsAdmin(false)}>🚪 Logout</button>
+            </>
+          )}
         </div>
 
         {/* Table header */}
@@ -700,7 +696,7 @@ const keys = [
             <div className="db-modal-hdr">
               <div>
                 <div className="db-modal-id">Admin Access</div>
-                <div className="db-modal-title">Analytics Login</div>
+                <div className="db-modal-title">Admin Login</div>
               </div>
               <button className="db-modal-x" onClick={() => setLoginVisible(false)}>×</button>
             </div>
