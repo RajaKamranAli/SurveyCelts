@@ -678,7 +678,7 @@ const ALL_LIKERT_QUESTIONS = [
   ["B-Q3",  "Urdu more accessible",      "urduMoreAccessible",              "B"],
   ["B-Q4",  "Eng barrier rural",         "englishBarrierRural",             "B"],
   ["B-Q5",  "Eng barrier urban",         "englishBarrierUrban",             "B"],
-  ["B-Q6",  "Foreign lang outcomes",     "teachingForeignLanguageOutcomes", "B"],
+  ["B-Q6",  "Foreign lang outcomes",     "foreignLanguageAffectsLearning",  "B"],
   ["B-Q7",  "Participation local lang",  "participationLocalLanguage",      "B"],
   ["B-Q8",  "Early ed in MT",            "earlyEducationMotherTongue",      "B"],
   ["B-Q9",  "Concept learn MT",          "conceptLearningMotherTongue",     "B"],
@@ -689,13 +689,13 @@ const ALL_LIKERT_QUESTIONS = [
   ["C-Q13", "Eng favors elite",          "englishFavorsElite",              "C"],
   ["C-Q14", "Regional disadvantaged",    "regionalStudentsDisadvantaged",   "C"],
   ["C-Q15", "Policy = inequality",       "languagePolicyInequality",        "C"],
-  ["C-Q16", "Jobs for English med.",     "jobOpportunitiesEnglishMedium",   "C"],
+  ["C-Q16", "Jobs for English med.",     "jobOpportunitiesEnglish",         "C"],
   // Section D
   ["D-Q17", "Teachers effective Eng",    "teachersEffectiveEnglish",        "D"],
   ["D-Q18", "Teachers switch local",     "teachersSwitchLocalLanguage",     "D"],
-  ["D-Q19", "Teach in Urdu/local",       "teacherUrduLocalLanguage",        "D"],
+  ["D-Q19", "Teach in Urdu/local",       "teacherCanTeachUrduLocal",        "D"],
   ["D-Q20", "Interaction shared lang",   "interactionSharedLanguage",       "D"],
-  ["D-Q21", "Urdu while Eng subj",       "teacherUrduWhileEnglish",         "D"],
+  ["D-Q21", "Urdu while Eng subj",       "teacherUsesUrduLocalInEnglish",   "D"],
   // Section E
   ["E-Q22", "MT primary",                "motherTonguePrimary",             "E"],
   ["E-Q23", "Urdu primary",              "urduPrimary",                     "E"],
@@ -705,7 +705,7 @@ const ALL_LIKERT_QUESTIONS = [
   // Section F
   ["F-Q27", "Urdu middle",               "urduMiddle",                      "F"],
   ["F-Q28", "Eng middle",                "englishMiddle",                   "F"],
-  ["F-Q29", "Bilingual Urdu-Eng",        "bilingualUrduEnglish",            "F"],
+  ["F-Q29", "Bilingual Urdu-Eng",        "bilingualUrduEnglishMiddle",      "F"],
   ["F-Q30", "MT support middle",         "motherTongueSupportMiddle",       "F"],
   ["F-Q31", "Gradual shift Eng",         "gradualShiftEnglishMiddle",       "F"],
   // Section G
@@ -1471,7 +1471,7 @@ function SectionB({ data }) {
     ["Q3 — Urdu is more accessible to students than English at primary level","urduMoreAccessible"],
     ["Q4 — English medium creates comprehension barriers for rural students","englishBarrierRural"],
     ["Q5 — English medium creates comprehension barriers for urban students","englishBarrierUrban"],
-    ["Q6 — Teaching in foreign Language affects learning outcomes","teachingForeignLanguageOutcomes"],
+    ["Q6 — Teaching in foreign Language affects learning outcomes","foreignLanguageAffectsLearning"],
     ["Q7 — Students actively participate when teachers use local languages","participationLocalLanguage"],
     ["Q8 — Early grade education should be in mother tongue","earlyEducationMotherTongue"],
     ["Q9 — Conceptual learning improves when taught in mother tongue","conceptLearningMotherTongue"],
@@ -1516,7 +1516,7 @@ function SectionC({ data }) {
     ["Q13 — English medium of instruction favors elite/private school students","englishFavorsElite"],
     ["Q14 — Students from regional language backgrounds are disadvantaged","regionalStudentsDisadvantaged"],
     ["Q15 — Language policy contributes to educational inequality","languagePolicyInequality"],
-    ["Q16 — More Job Opportunities are available for English medium students","jobOpportunitiesEnglishMedium"],
+    ["Q16 — More Job Opportunities are available for English medium students","jobOpportunitiesEnglish"],
   ];
   return (
     <div>
@@ -1566,9 +1566,9 @@ function SectionD({ data }) {
   const QUESTIONS = [
     ["Q17 — Teachers are able to teach effectively in English medium","teachersEffectiveEnglish"],
     ["Q18 — Teachers naturally switch to local languages for explanation","teachersSwitchLocalLanguage"],
-    ["Q19 — Teacher can teach in Urdu or in local Languages","teacherUrduLocalLanguage"],
+    ["Q19 — Teacher can teach in Urdu or in local Languages","teacherCanTeachUrduLocal"],
     ["Q20 — Teacher-student interaction improves in shared language","interactionSharedLanguage"],
-    ["Q21 — Teacher use Urdu or local Languages while teaching subjects in English","teacherUrduWhileEnglish"],
+    ["Q21 — Teacher use Urdu or local Languages while teaching subjects in English","teacherUsesUrduLocalInEnglish"],
   ];
   return (
     <div>
@@ -1672,7 +1672,7 @@ function SectionF({ data }) {
   const QUESTIONS = [
     ["Q27 — Urdu should be medium of Instruction at middle level","urduMiddle"],
     ["Q28 — English should become medium at middle level","englishMiddle"],
-    ["Q29 — Bilingual Urdu-English model should be adopted","bilingualUrduEnglish"],
+    ["Q29 — Bilingual Urdu-English model should be adopted","bilingualUrduEnglishMiddle"],
     ["Q30 — Mother tongue support should continue at middle level","motherTongueSupportMiddle"],
     ["Q31 — Gradual shift to English should begin at middle level","gradualShiftEnglishMiddle"],
   ];
