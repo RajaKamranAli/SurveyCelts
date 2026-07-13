@@ -462,21 +462,31 @@ function BarChart({ data, horizontal = true }) {
   const max = Math.max(...data.map(d=>d.value), 1);
   return (
     <div style={{display:"flex",flexDirection:"column",gap:7}}>
-      {data.map((d,i) => (
-        <div key={i} style={{display:"flex",alignItems:"center",gap:10}}>
-          <div style={{width:100,fontSize:11,color:"#5a5a72",textAlign:"right",flexShrink:0,lineHeight:1.3}}>{d.label}</div>
-          <div style={{flex:1,background:"#f0ebe0",borderRadius:4,height:20,overflow:"hidden"}}>
-            <div style={{
-              width:`${(d.value/max)*100}%`, height:"100%",
-              background: PALETTE[i % PALETTE.length], borderRadius:4,
-              display:"flex", alignItems:"center", paddingLeft:7,
-              transition:"width 0.6s ease", minWidth: d.value > 0 ? 4 : 0,
-            }}>
-              {d.value > 0 && <span style={{fontSize:11,color:"#fff",fontWeight:600}}>{d.value}</span>}
+      {data.map((d,i) => {
+        const widthPct = (d.value/max)*100;
+        const showInside = d.value > 0 && widthPct > 12; // enough room for label inside
+        return (
+          <div key={i} style={{display:"flex",alignItems:"center",gap:10}}>
+            <div style={{width:100,fontSize:11,color:"#5a5a72",textAlign:"right",flexShrink:0,lineHeight:1.3}}>{d.label}</div>
+            <div style={{flex:1,display:"flex",alignItems:"center",gap:8}}>
+              <div style={{flex:1,background:"#f0ebe0",borderRadius:4,height:20,overflow:"hidden"}}>
+                <div style={{
+                  width:`${widthPct}%`, height:"100%",
+                  background: PALETTE[i % PALETTE.length], borderRadius:4,
+                  display:"flex", alignItems:"center", paddingLeft:7,
+                  transition:"width 0.6s ease", minWidth: d.value > 0 ? 4 : 0,
+                }}>
+                  {showInside && <span style={{fontSize:11,color:"#fff",fontWeight:600}}>{d.value}</span>}
+                </div>
+              </div>
+              {/* Always-visible count, shown outside the bar when it's too small to hold the label */}
+              {!showInside && (
+                <span style={{fontSize:11,color:"#1a1a2e",fontWeight:600,minWidth:18,flexShrink:0}}>{d.value}</span>
+              )}
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
