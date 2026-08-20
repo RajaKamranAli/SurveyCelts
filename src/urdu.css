@@ -1,0 +1,63 @@
+/* ─────────────────────────────────────────────────────────────
+   URDU MODE + LIKERT SIZING
+   File location:  src/urdu.css   (same folder as styles.css)
+
+   Then in src/main.jsx, BELOW your styles.css import, add:
+       import "./urdu.css";
+
+   (Order matters — this file must load AFTER styles.css so the
+    compact .likert-btn sizes below win over the old big ones.)
+   ───────────────────────────────────────────────────────────── */
+
+/* Fallback Nastaleeq font — loads automatically from Google Fonts,
+   so Urdu looks correct even before you add the Jameel Noori file. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+
+/* Jameel Noori Nastaleeq — browsers can only use it if you give
+   them the font file. Put the file at:
+       public/fonts/JameelNooriNastaleeq.ttf
+   (create the "public" folder at project root — see instructions).
+   File name must match exactly. Until then, Noto Nastaliq is used. */
+@font-face {
+  font-family: "Jameel Noori Nastaleeq";
+  src: url("/fonts/JameelNooriNastaleeq.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* Applied to card-body / card-header when language = Urdu.
+   Everything inside inherits the Nastaleeq font. */
+.urdu {
+  font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+}
+
+/* Urdu QUESTION text — bigger and clear.
+   (The pages wrap every question label in <span class="urdu-q">.) */
+.urdu-q {
+  display: inline-block;
+  font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+  font-size: 19px;        /* ← make questions bigger/smaller here */
+  line-height: 2.1;       /* Nastaleeq needs tall line-height or letters clip */
+  font-weight: 700;
+}
+
+/* ── LIKERT OPTION BOXES — smaller / compact ─────────────────── */
+
+/* English mode (and default) — compact boxes */
+.likert-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* Urdu mode — Jameel Noori inside the boxes + correct height
+   so the Nastaleeq letters don't get cut off */
+.urdu .likert-btn {
+  font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+  font-size: 15px;
+  line-height: 2;
+  padding: 2px 14px 5px;
+}
+
+/* ── Header text sizing in Urdu mode ─────────────────────────── */
+.urdu .card-header-title { font-size: 26px; line-height: 1.9; }
+.urdu .card-header-desc  { font-size: 15px; line-height: 2.1; }
+.urdu .card-header-tag   { font-size: 13px; line-height: 1.9; }
