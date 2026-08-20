@@ -690,7 +690,11 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
       iconBg:"rgba(79,209,197,0.22)", chipClr:"#7ef0e6",
       numGrad:"linear-gradient(135deg,#fff 0%,#7ef0e6 100%)",
       glow:"#4fd1c5" },
+<<<<<<< HEAD
     { icon:"🌏", val:1,              lbl:"Provinces Covered", chip:"PK",
+=======
+    { icon:"🌏", val:6,              lbl:"Provinces Covered", chip:"PK",
+>>>>>>> 5bc574d5e9cf6e5cc27fa06bd2113cc68b9b19e3
       topbar:"linear-gradient(90deg,#ff7a90,#f5b840)",
       iconBg:"rgba(255,122,144,0.22)", chipClr:"#ff9bac",
       numGrad:"linear-gradient(135deg,#fff 0%,#ff9bac 100%)",
@@ -785,7 +789,11 @@ export default function Dashboard({ onStart, onAnalytics, onViewSurveys }) {
         <div className="edu-nav">
           <div className="edu-nav-left">
             <div className="edu-nav-emblem">
+<<<<<<< HEAD
               <div className="edu-nav-emblem-inner">IBD</div>
+=======
+              <div className="edu-nav-emblem-inner">AI</div>
+>>>>>>> 5bc574d5e9cf6e5cc27fa06bd2113cc68b9b19e3
             </div>
             <div>
               <div className="edu-nav-org">CeLTS · AIOU · Islamabad</div>
